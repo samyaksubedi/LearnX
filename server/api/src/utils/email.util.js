@@ -25,7 +25,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
       to,
       subject,
     });
-    throw error; // let the caller handle it
+    throw error;
   }
 };
 
