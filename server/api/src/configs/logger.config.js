@@ -5,7 +5,7 @@ const { combine, timestamp, json, colorize, simple } = winston.format;
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
 
-  format: combine(timestamp(), json()),
+  format: combine(timestamp({ format: 'DD-MM-YYYY, hh:mm:ss A' }), json()),
 });
 
 if (process.env.NODE_ENV == 'production') {
@@ -15,6 +15,7 @@ if (process.env.NODE_ENV == 'production') {
       level: 'error',
     }),
   );
+
   logger.add(
     new winston.transports.File({
       filename: 'logs/combined.log',
@@ -22,7 +23,9 @@ if (process.env.NODE_ENV == 'production') {
   );
 } else {
   logger.add(
-    new winston.transports.Console({ format: combine(colorize(), simple()) }),
+    new winston.transports.Console({
+      format: combine(colorize(), simple()),
+    }),
   );
 }
 
