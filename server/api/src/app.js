@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import { envVariables } from './configs/env.config.js';
+import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
 
@@ -27,5 +28,7 @@ app.get('/', async (req, res) => {
 });
 // app.use('/api', conversationRouter);
 app.use('/api/auth', authRouter);
+app.use(errorMiddleware);
+// Global Error Middleware - Should always be in the end of middlewares : )
 
 export { app };
