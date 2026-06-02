@@ -1,12 +1,11 @@
 import express from 'express';
-// import conversationRouter from './Routers/conversation.router.js';
-// import authRouter from './Routers/auth.router.js';
-// import userRouter from './Routers/user.router.js';
+
+import authRouter from './modules/auth/auth.router.js';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
-import { envVariables } from './Configs/env.config.js';
+import { envVariables } from './configs/env.config.js';
 
 const app = express();
 
@@ -27,6 +26,6 @@ app.get('/', async (req, res) => {
   res.send({ message: 'server is serving' });
 });
 // app.use('/api', conversationRouter);
-// app.use('/api/auth', authRouter);
+app.use('/api/auth', authRouter);
 
 export { app };

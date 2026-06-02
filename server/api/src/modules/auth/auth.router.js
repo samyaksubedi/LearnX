@@ -9,12 +9,13 @@ import {
   logoutFromAllDevices, // Clear users session from all other loggedIn devices
   refresh,
 } from './auth.controller.js';
-// import { validate } from '../Middlewares/validate.middleware.js';
+
 import {
   signUpReqBodySchema,
   signInReqBodySchema,
   resendVerificationTokenReqBodySchema,
-} from '../Schemas/auth.schema.js';
+} from './auth.validation.js';
+import { validate } from '../../middlewares/validate.middleware.js';
 
 const router = express.Router();
 router.get('/', (req, res) => {
@@ -28,9 +29,8 @@ router.post(
 );
 router.get('/verify/:token', verifyUser);
 router.post('/signIn', validate(signInReqBodySchema), signIn);
-router.post('/logout', logoutUser);
+router.post('/logout', logout);
 router.post('/logout-all', logoutFromAllDevices);
 router.post('/refresh', refresh);
-
 
 export default router;

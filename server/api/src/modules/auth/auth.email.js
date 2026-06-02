@@ -97,8 +97,8 @@ const getEmailShell = ({
   text: `Hey ${name}, ${introParagraph} Verify here: ${verificationUrl} — expires in 24 hours.`,
 });
 
-const sendWelcomeEmail = async ({ to, name, verificationToken }) => {
-  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${verificationToken}`;
+const sendWelcomeEmail = async ({ to, name, emailVerificationToken }) => {
+  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${emailVerificationToken}`;
 
   const { html, text } = getEmailShell({
     name,
@@ -115,8 +115,12 @@ const sendWelcomeEmail = async ({ to, name, verificationToken }) => {
   });
 };
 
-const sendResendVerificationEmail = async ({ to, name, verificationToken }) => {
-  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${verificationToken}`;
+const sendResendVerificationEmail = async ({
+  to,
+  name,
+  emailVerificationToken,
+}) => {
+  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${emailVerificationToken}`;
 
   const { html, text } = getEmailShell({
     name,

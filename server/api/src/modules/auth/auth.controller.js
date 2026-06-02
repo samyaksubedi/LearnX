@@ -1,13 +1,23 @@
 import { logger } from '../../configs/logger.config.js';
+import { ApiResponse } from '../../utils/api-output.util.js';
+import { authService } from './auth.service.js';
 
-
-const signUp = async (req, res) => {
+const signUp = async (req, res, next) => {
   try {
+    const { name, email, password } = req.body;
+    const user = await authService.signUp({ name, email, password });
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          user,
+          'User Registered Successfully! Please check your Email and Verify it.',
+        ),
+      );
   } catch (error) {
-    logger.error('Internal Server Error at api/auth/signUp', {
-      stack: error.stack,
-      message: error.message,
-    });
+    next(error);
   }
 };
 const resendVerificationToken = async (req, res) => {};
