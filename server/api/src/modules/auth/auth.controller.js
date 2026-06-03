@@ -20,8 +20,18 @@ const signUp = async (req, res, next) => {
     next(error);
   }
 };
+const verifyUser = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    await authService.verifyUser(token);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, 'User verified successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
 const resendVerificationToken = async (req, res) => {};
-const verifyUser = async (req, res) => {};
 const signIn = async (req, res) => {};
 const logout = async (req, res) => {};
 const logoutFromAllDevices = async (req, res) => {};

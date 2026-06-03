@@ -6,7 +6,7 @@ import { ApiError } from '../utils/api-output.util.js';
 const errorMiddleware = (err, req, res, next) => {
   if (err instanceof ApiError) {
     // Known Developer Generated Business Error
-    logger.warn('Known Error', {
+    logger.warn('Predicted Error :', {
       method: req.method,
       route: req.originalUrl,
       message: err.message,
@@ -15,7 +15,7 @@ const errorMiddleware = (err, req, res, next) => {
     return res.status(err.statusCode).json(err); // here err is just an instance of ApiError
   }
 
-  logger.error('Unhandled Error', {
+  logger.error('Unhandled Error :', {
     method: req.method,
     route: req.originalUrl,
     message: err instanceof Error ? err.message : String(err),

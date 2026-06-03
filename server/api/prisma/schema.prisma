@@ -52,7 +52,7 @@ model Conversation {
 
   // timestamps
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt // Update everytime a new message is added to this conversation 
+  updatedAt DateTime  @updatedAt // We Manually Update everytime a new message is added to this conversation 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]
 }

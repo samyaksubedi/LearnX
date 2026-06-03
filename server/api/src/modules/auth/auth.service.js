@@ -38,4 +38,24 @@ const signUp = async ({ name, email, password }) => {
   return user;
 };
 
-export const authService = { signUp };
+const verifyUser = async (emailVerificationToken) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      emailVerificationToken: emailVerificationToken,
+      emailVerificationTokenExpires: { gt: new Date() },
+    },
+  });
+  if (!user) {
+    throw new ApiError(400, 'Verification link expired or invalid');
+  }
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isVerified: true,
+      emailVerificationToken: null,
+      emailVerificationTokenExpires: null,
+    },
+  });
+};
+
+export const authService = { signUp, verifyUser };
