@@ -2,7 +2,7 @@
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { hashPassword } from './auth.crypto.js';
-import { sendWelcomeEmail } from './auth.email.js';
+import { resendVerificationEmail, sendWelcomeEmail } from './auth.email.js';
 import { generateEmailVerificationToken } from './auth.tokens.js';
 
 const signUp = async ({ name, email, password }) => {
@@ -58,4 +58,27 @@ const verifyUser = async (emailVerificationToken) => {
   });
 };
 
-export const authService = { signUp, verifyUser };
+const resendVerificationToken = async (email) => {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new ApiError(404, 'User not found with the email');
+  }
+  if (user.isVerified) {
+    throw new ApiError(400, 'User is already Verified');
+  }
+  const { emailVerificationToken, emailVerificationTokenExpires } =
+    generateEmailVerificationToken();
+  await prisma.user.update({
+    where: { email },
+    data: {
+      emailVerificationToken,
+      emailVerificationTokenExpires,
+    },
+  });
+  await resendVerificationEmail({
+    name: user.name,
+    to: email,
+    emailVerificationToken: emailVerificationToken,
+  });
+};
+export const authService = { signUp, verifyUser, resendVerificationToken };

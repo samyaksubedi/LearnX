@@ -115,7 +115,7 @@ const sendWelcomeEmail = async ({ to, name, emailVerificationToken }) => {
   });
 };
 
-const sendResendVerificationEmail = async ({
+const resendVerificationEmail = async ({
   to,
   name,
   emailVerificationToken,
@@ -137,4 +137,4 @@ const sendResendVerificationEmail = async ({
   });
 };
 
-export { sendWelcomeEmail, sendResendVerificationEmail };
+export { sendWelcomeEmail, resendVerificationEmail };

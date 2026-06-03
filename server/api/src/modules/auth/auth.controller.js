@@ -31,7 +31,23 @@ const verifyUser = async (req, res, next) => {
     next(error);
   }
 };
-const resendVerificationToken = async (req, res) => {};
+const resendVerificationToken = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await authService.resendVerificationToken(email);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          null,
+          'Verification email resent, Check your email',
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 const signIn = async (req, res) => {};
 const logout = async (req, res) => {};
 const logoutFromAllDevices = async (req, res) => {};
