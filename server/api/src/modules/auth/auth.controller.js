@@ -78,10 +78,64 @@ const signIn = async (req, res, next) => {
     next(error);
   }
 };
-const logout = async (req, res) => {};
-const logoutFromAllDevices = async (req, res) => {};
-const refresh = async (req, res) => {};
-const getAllLoggedInDeviceInfo = async (req, res, next) => {};
+const logout = async (req, res, next) => {
+  try {
+    const sessionId = req.user.sessionId;
+    await authService.logout(sessionId);
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: envVariables.NODE_ENV == 'production', // set to true in production (HTTPS) else fasle in development
+      sameSite: 'strict',
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, 'User logged Out successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+const logoutFromAllDevices = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const deviceCount = await authService.logoutFromAllDevices(userId);
+    console.log(deviceCount);
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: envVariables.NODE_ENV == 'production', // set to true in production (HTTPS) else fasle in development
+      sameSite: 'strict',
+    });
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          null,
+          `User logged out from all ${deviceCount} devices .  `,
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const refresh = async (req, res, next) => {};
+const getAllLoggedInDeviceInfo = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const devicesInfo = await authService.getAllLoggedInDeviceInfo(userId);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          devicesInfo,
+          'Logged in devices info fetched successfully !',
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   signUp,

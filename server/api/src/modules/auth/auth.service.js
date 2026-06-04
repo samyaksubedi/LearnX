@@ -1,3 +1,4 @@
+import { id } from 'zod/v4/locales';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import {
@@ -12,6 +13,7 @@ import {
   generateEmailVerificationToken,
   generateRefreshToken,
 } from './auth.tokens.js';
+import { success } from 'zod';
 
 const signUp = async ({ name, email, password }) => {
   const userExists = await prisma.user.findUnique({ where: { email } });
@@ -142,9 +144,43 @@ const signIn = async (email, password, deviceInfo, ipAddress) => {
     refreshTokenExpires,
   };
 };
+
+const logout = async (sessionId) => {
+  await prisma.userSession.delete({
+    where: {
+      id: sessionId,
+    },
+  });
+};
+const logoutFromAllDevices = async (userId) => {
+  const playload = await prisma.userSession.deleteMany({
+    where: {
+      userId,
+    },
+  });
+  return playload.count;
+};
+
+const refresh = async (sessionId) => {};
+
+const getAllLoggedInDeviceInfo = async (userId) => {
+  const deviceInfo = await prisma.userSession.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      deviceInfo: true,
+      ipAddress: true,
+    },
+  });
+  return deviceInfo;
+};
 export const authService = {
   signUp,
   verifyUser,
   resendVerificationToken,
   signIn,
+  logout,
+  logoutFromAllDevices,
+  getAllLoggedInDeviceInfo,
 };
