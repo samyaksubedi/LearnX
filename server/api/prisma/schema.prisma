@@ -75,7 +75,7 @@ model UserSession {
   id                  String   @id @default(uuid())
   userId              String
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hashRefreshToken    String
+  refreshTokenHash    String
   refreshTokenExpires DateTime
   deviceInfo          Json?
   ipAddress           String?

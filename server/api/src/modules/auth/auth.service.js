@@ -1,9 +1,17 @@
-// import { logger } from '../../Configs/logger.config.js';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
-import { hashPassword } from './auth.crypto.js';
+import {
+  comparePassword,
+  hashPassword,
+  hashRefreshToken,
+  compareRefreshToken,
+} from './auth.crypto.js';
 import { resendVerificationEmail, sendWelcomeEmail } from './auth.email.js';
-import { generateEmailVerificationToken } from './auth.tokens.js';
+import {
+  generateAccessToken,
+  generateEmailVerificationToken,
+  generateRefreshToken,
+} from './auth.tokens.js';
 
 const signUp = async ({ name, email, password }) => {
   const userExists = await prisma.user.findUnique({ where: { email } });
@@ -81,4 +89,62 @@ const resendVerificationToken = async (email) => {
     emailVerificationToken: emailVerificationToken,
   });
 };
-export const authService = { signUp, verifyUser, resendVerificationToken };
+
+const signIn = async (email, password, deviceInfo, ipAddress) => {
+  // 1. Find user
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (!user) {
+    throw new ApiError(401, 'Invalid credentials');
+  }
+
+  // 2. Check if verified
+  if (!user.isVerified) {
+    throw new ApiError(403, 'Please verify your email first');
+  }
+
+  // 3. Compare password
+  const isMatch = await comparePassword(password, user.passwordHash);
+  if (!isMatch) {
+    throw new ApiError(401, 'Invalid credentials');
+  }
+
+  // 4. Generate refresh token ;
+  const { refreshToken, refreshTokenExpires } = generateRefreshToken();
+  const refreshTokenHash = await hashRefreshToken(refreshToken);
+
+  // 4. Create user session for every new login (Can support multi device login ) ;
+  const userSession = await prisma.userSession.create({
+    data: {
+      refreshTokenHash,
+      refreshTokenExpires,
+      userId: user.id,
+      ipAddress,
+      deviceInfo,
+    },
+  });
+
+  // 5. GenerateAccessToken
+
+  const accessToken = generateAccessToken(user.id, user.email, userSession.id);
+
+  // 6. Return related data to the controller so it can send a proper response back to the user  : )
+
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+    accessToken,
+    refreshToken,
+    refreshTokenExpires,
+  };
+};
+export const authService = {
+  signUp,
+  verifyUser,
+  resendVerificationToken,
+  signIn,
+};
