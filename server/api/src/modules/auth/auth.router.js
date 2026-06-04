@@ -33,7 +33,11 @@ router.get('/verify/:token', verifyUser);
 router.post('/signIn', validate(signInReqBodySchema), signIn);
 router.post('/logout', authenticateUser, logout);
 router.post('/logout-all', authenticateUser, logoutFromAllDevices);
-router.get('/info-loggedIn-devices', authenticateUser, getAllLoggedInDeviceInfo);
+router.get(
+  '/info-loggedIn-devices',
+  authenticateUser,
+  getAllLoggedInDeviceInfo,
+);
 router.post('/refresh', refresh);
 
 export default router;
