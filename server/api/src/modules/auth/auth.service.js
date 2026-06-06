@@ -198,6 +198,21 @@ const getAllLoggedInDeviceInfo = async (userId) => {
   });
   return deviceInfo;
 };
+
+const getMe = async (userId) => {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      isVerified: true,
+      name: true,
+    },
+  });
+
+  return user;
+};
+
 export const authService = {
   signUp,
   verifyUser,
@@ -207,4 +222,5 @@ export const authService = {
   logoutFromAllDevices,
   getAllLoggedInDeviceInfo,
   refresh,
+  getMe,
 };

@@ -1,5 +1,5 @@
 import { envVariables } from '../../Configs/env.config.js';
-import { ApiResponse } from '../../utils/api-output.util.js';
+import { ApiError, ApiResponse } from '../../utils/api-output.util.js';
 import { getDeviceInfo } from './auth.device.js';
 import { authService } from './auth.service.js';
 
@@ -149,6 +149,17 @@ const getAllLoggedInDeviceInfo = async (req, res, next) => {
     next(error);
   }
 };
+const getMe = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const user = await authService.getMe(id);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, 'User fetched successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   signUp,
@@ -159,4 +170,5 @@ export {
   logoutFromAllDevices, // Clear users session from all other loggedIn devices
   refresh,
   getAllLoggedInDeviceInfo,
+  getMe,
 };

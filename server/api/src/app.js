@@ -26,6 +26,9 @@ app.use(compression());
 app.get('/', async (req, res) => {
   res.send({ message: 'server is serving' });
 });
+app.get('/api/health-check', async (req, res) => {
+  res.send({ message: 'Healthy!' });
+});
 // app.use('/api', conversationRouter);
 app.use('/api/auth', authRouter);
 app.use(errorMiddleware);

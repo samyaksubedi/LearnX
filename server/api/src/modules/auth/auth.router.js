@@ -9,6 +9,7 @@ import {
   logoutFromAllDevices, // Clear users session from all other loggedIn devices
   refresh,
   getAllLoggedInDeviceInfo,
+  getMe,
 } from './auth.controller.js';
 
 import {
@@ -39,5 +40,6 @@ router.get(
   getAllLoggedInDeviceInfo,
 );
 router.post('/refresh', refresh);
+router.get('/me', authenticateUser, getMe);
 
 export default router;
