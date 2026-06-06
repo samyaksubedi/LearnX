@@ -33,6 +33,7 @@ export const envVariables = {
   CLIENT_URL: process.env.CLIENT_URL,
   SERVER_URL: process.env.SERVER_URL,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
   REDIS_URL: getRedisUrl(),
   DATABASE_URL: getDatabaseUrl(),
   NODE_ENV: process.env.NODE_ENV,
