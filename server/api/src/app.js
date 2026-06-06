@@ -1,6 +1,7 @@
 import express from 'express';
 
 import authRouter from './modules/auth/auth.router.js';
+import conversationsRouter from './modules/conversations/conversations.router.js';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -31,6 +32,7 @@ app.get('/api/health-check', async (req, res) => {
 });
 // app.use('/api', conversationRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/conversations', conversationsRouter);
 app.use(errorMiddleware);
 // Global Error Middleware - Should always be in the end of middlewares : )
 
