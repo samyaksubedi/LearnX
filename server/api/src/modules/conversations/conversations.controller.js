@@ -1,5 +1,5 @@
 import { ApiResponse } from '../../utils/api-output.util.js';
-import { conversationsService } from './conversations.service';
+import { conversationsService } from './conversations.service.js';
 
 const fromYoutube = async (req, res, next) => {};
 const fromUpload = async (req, res, next) => {};
