@@ -1,19 +1,13 @@
 import { id } from 'zod/v4/locales';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
-import {
-  comparePassword,
-  hashPassword,
-  hashRefreshToken,
-  compareRefreshToken,
-} from './auth.crypto.js';
+import { comparePassword, hashPassword } from './auth.crypto.js';
 import { resendVerificationEmail, sendWelcomeEmail } from './auth.email.js';
 import {
   generateAccessToken,
   generateEmailVerificationToken,
   generateRefreshToken,
 } from './auth.tokens.js';
-import { success } from 'zod';
 
 const signUp = async ({ name, email, password }) => {
   const userExists = await prisma.user.findUnique({ where: { email } });
@@ -114,12 +108,11 @@ const signIn = async (email, password, deviceInfo, ipAddress) => {
 
   // 4. Generate refresh token ;
   const { refreshToken, refreshTokenExpires } = generateRefreshToken();
-  const refreshTokenHash = await hashRefreshToken(refreshToken);
 
   // 4. Create user session for every new login (Can support multi device login ) ;
   const userSession = await prisma.userSession.create({
     data: {
-      refreshTokenHash,
+      refreshToken,
       refreshTokenExpires,
       userId: user.id,
       ipAddress,
@@ -161,7 +154,35 @@ const logoutFromAllDevices = async (userId) => {
   return playload.count;
 };
 
-const refresh = async (sessionId) => {};
+const refresh = async (refreshToken) => {
+  const userSession = await prisma.userSession.findFirst({
+    where: {
+      refreshToken,
+      refreshTokenExpires: { gt: new Date() },
+    },
+  });
+  if (!userSession) {
+    throw new ApiError(
+      400,
+      'Invalid or Expired refreshToken, Please login again!',
+    );
+  }
+  const userId = userSession.userId;
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+  });
+  // Logs
+  await prisma.userSession.update({
+    where: {
+      id: userSession.id,
+    },
+    data: { lastUsedAt: new Date() },
+  });
+  const accessToken = generateAccessToken(userId, user.email, userSession.id);
+  return accessToken;
+};
 
 const getAllLoggedInDeviceInfo = async (userId) => {
   const deviceInfo = await prisma.userSession.findMany({
@@ -171,6 +192,8 @@ const getAllLoggedInDeviceInfo = async (userId) => {
     select: {
       deviceInfo: true,
       ipAddress: true,
+      createdAt: true,
+      lastUsedAt: true,
     },
   });
   return deviceInfo;
@@ -183,4 +206,5 @@ export const authService = {
   logout,
   logoutFromAllDevices,
   getAllLoggedInDeviceInfo,
+  refresh,
 };

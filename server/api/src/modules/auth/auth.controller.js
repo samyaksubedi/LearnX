@@ -118,7 +118,20 @@ const logoutFromAllDevices = async (req, res, next) => {
     next(error);
   }
 };
-const refresh = async (req, res, next) => {};
+const refresh = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json(new ApiError(400, 'refreshToken is missing in cookies!'));
+    }
+    const accessToken = await authService.refresh(refreshToken);
+    return res.status(200).json(new ApiResponse(200, { accessToken }));
+  } catch (error) {
+    next(error);
+  }
+};
 const getAllLoggedInDeviceInfo = async (req, res, next) => {
   try {
     const userId = req.user.id;
