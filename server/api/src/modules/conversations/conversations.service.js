@@ -1,8 +1,40 @@
+import { id } from 'zod/v4/locales';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
+import { validateYoutubeUrl } from './conversations.youtube.js';
 
-const fromYoutube = async () => {};
-const fromUpload = async () => {};
+const createConversationFromYoutube = async (userId, sourceLink) => {
+  // Validate the url
+  // Create conversation with status processing
+  // Push to the queue - {convoId , sourceLink}
+  // return the conversation
+  const metadata = await validateYoutubeUrl(sourceLink);
+  if (!metadata.isValid) {
+    const errorMessage = metadata.errorMessage;
+    throw new ApiError(400, errorMessage);
+  }
+  const youtubeVideoTitle = metadata.title;
+  const conversation = await prisma.conversation.create({
+    data: {
+      userId,
+      title: youtubeVideoTitle, // Default Title
+      sourceLink,
+      sourceType: 'youtube',
+      status: 'processing',
+    },
+    select: {
+      id: true,
+      title: true,
+      sourceLink: true,
+      sourceType: true,
+      status: true,
+    },
+  });
+
+  //TODO Publish to queue
+  return conversation;
+};
+const createConversationFromMedia = async () => {};
 const getConversations = async (userId) => {
   const conversations = await prisma.conversation.findMany({
     where: { userId },
@@ -72,8 +104,12 @@ const getConversationStatus = async (userId, conversationId) => {
     where: { id: conversationId },
     select: {
       status: true,
+      userId: true,
     },
   });
+  if (!conversation) {
+    throw new ApiError(404, 'Conversation not found');
+  }
   // Prevent user from seeing another user's conversation status
   if (conversation.userId !== userId) {
     throw new ApiError(403, 'Unauthorized');
@@ -83,8 +119,8 @@ const getConversationStatus = async (userId, conversationId) => {
 const chatWithConversation = async () => {};
 
 export const conversationsService = {
-  fromYoutube,
-  fromUpload,
+  createConversationFromYoutube,
+  createConversationFromMedia,
   getConversations,
   getConversation,
   deleteConversation,

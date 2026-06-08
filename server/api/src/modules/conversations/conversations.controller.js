@@ -1,7 +1,29 @@
 import { ApiResponse } from '../../utils/api-output.util.js';
 import { conversationsService } from './conversations.service.js';
 
-const fromYoutube = async (req, res, next) => {};
+const fromYoutube = async (req, res, next) => {
+  try {
+    const { sourceLink } = req.body; // youtube video url
+    const userId = req.user.id;
+
+    const conversation =
+      await conversationsService.createConversationFromYoutube(
+        userId,
+        sourceLink,
+      );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          conversation,
+          'Conversation created and started processing in the background !',
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 const fromUpload = async (req, res, next) => {};
 const getConversations = async (req, res, next) => {
   try {
@@ -66,7 +88,7 @@ const getConversationStatus = async (req, res, next) => {
     );
     return res
       .status(200)
-      .json(new ApiResponse(200, status, 'Status fetched successfully'));
+      .json(new ApiResponse(200, { status }, 'Status fetched successfully'));
   } catch (error) {
     next(error);
   }

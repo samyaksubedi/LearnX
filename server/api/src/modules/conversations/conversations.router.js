@@ -22,11 +22,20 @@ import {
   getConversationStatus,
 } from './conversations.controller.js';
 import { validate } from '../../middlewares/validate.middleware.js';
-import { chatReqBody, convoIdParams } from './conversations.validation.js';
+import {
+  chatReqBody,
+  convoIdParams,
+  createConvoFromYoutubeReqBody,
+} from './conversations.validation.js';
 
 const router = express.Router();
 
-router.post('/from-youtube', authenticateUser, fromYoutube);
+router.post(
+  '/from-youtube',
+  authenticateUser,
+  validate(createConvoFromYoutubeReqBody),
+  fromYoutube,
+);
 router.post('/from-upload', authenticateUser, fromUpload);
 router.get('/', authenticateUser, getConversations);
 router.get(

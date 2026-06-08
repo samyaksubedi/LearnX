@@ -7,4 +7,7 @@ const convoIdParams = z.object({
 const chatReqBody = z.object({
   query: z.string(),
 });
-export { convoIdParams, chatReqBody };
+const createConvoFromYoutubeReqBody = z.object({
+  sourceLink: z.url(),
+});
+export { convoIdParams, chatReqBody, createConvoFromYoutubeReqBody };
