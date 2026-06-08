@@ -22,15 +22,36 @@ import {
   getConversationStatus,
 } from './conversations.controller.js';
 import { validate } from '../../middlewares/validate.middleware.js';
- 
+import { chatReqBody, convoIdParams } from './conversations.validation.js';
+
 const router = express.Router();
 
 router.post('/from-youtube', authenticateUser, fromYoutube);
 router.post('/from-upload', authenticateUser, fromUpload);
 router.get('/', authenticateUser, getConversations);
-router.get('/:conversationId', authenticateUser, getConversation);
-router.get('/:conversationId/status', authenticateUser, getConversationStatus);
-router.delete('/:conversationId', authenticateUser, deleteConversation);
-router.post('/:conversationId/chat', chatWithConversation);
+router.get(
+  '/:conversationId',
+  authenticateUser,
+  validate(convoIdParams, 'params'),
+  getConversation,
+);
+router.get(
+  '/:conversationId/status',
+  authenticateUser,
+  validate(convoIdParams, 'params'),
+  getConversationStatus,
+);
+router.delete(
+  '/:conversationId',
+  authenticateUser,
+  validate(convoIdParams, 'params'),
+  deleteConversation,
+);
+router.post(
+  '/:conversationId/chat',
+  validate(convoIdParams, 'params'),
+  validate(chatReqBody),
+  chatWithConversation,
+);
 
 export default router;
