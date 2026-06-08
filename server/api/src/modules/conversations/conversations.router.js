@@ -21,7 +21,8 @@ import {
   getConversations,
   getConversationStatus,
 } from './conversations.controller.js';
-
+import { validate } from '../../middlewares/validate.middleware.js';
+ 
 const router = express.Router();
 
 router.post('/from-youtube', authenticateUser, fromYoutube);

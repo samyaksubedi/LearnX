@@ -1,19 +1,27 @@
+import { envVariables } from '../../Configs/env.config.js';
+import { ApiError, ApiResponse } from '../../utils/api-output.util';
+import { webHookServices } from './webhooks.service.js';
+
 const updateConversationStatus = async (req, res, next) => {
   try {
-    // enum status =   processing | ready | failed
-    const { status, conversationId, error } 
+    // Verification so ,not anyone can updateStatus other that our microservice
+    if (req.headers['x-webhook-secret'] !== envVariables.WEBHOOK_SECRET) {
+      return res.status(401).json(new ApiError(401, 'Unauthorized'));
+    }
+    // enum status =    ready | failed
+    const { status, title, conversationId, errorMessage } = req.body;
+    await webHookServices.updateConversationStatus(
+      status,
+      title,
+      conversationId,
+      errorMessage,
+    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, 'Status updated successfully'));
   } catch (error) {
     next(error);
   }
 };
 
 export { updateConversationStatus };
-
-
-// // Python sends header
-// headers: { "x-webhook-secret": process.env.WEBHOOK_SECRET }
-
-// // Node verifies
-// if (req.headers["x-webhook-secret"] !== process.env.WEBHOOK_SECRET) {
-//     return res.status(401).json({ error: "Unauthorized" })
-// }
