@@ -43,18 +43,19 @@ enum status {
 }
 
 model Conversation {
-  id           String     @id @default(uuid())
-  title        String? // Youtube Video Title | Media Title | Can change later 
-  userId       String
-  sourceLink   String // Cloudinary uploaded media public link | youtube video link
-  sourceType   sourceType
-  status       status
-  errorMessage String? // If processing failed python will give us the errorMessage and status in the response and we will save it here : ) 
+  id             String     @id @default(uuid())
+  title          String? // Youtube Video Title | Media Title | Can change later 
+  userId         String
+  sourceLink     String // Cloudinary uploaded media public link | youtube video link
+  sourcePublicId String? // Helps cloudinary to edit the media (update delete ...) - optional cause for youtube we don't have any publicId 
+  sourceType     sourceType
+  status         status
+  errorMessage   String? // If processing failed python will give us the errorMessage and status in the response and we will save it here : ) 
   // timestamps
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt // We Manually Update everytime a new message is added to this conversation 
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages     Message[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt // We Manually Update everytime a new message is added to this conversation 
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       Message[]
 }
 
 enum MessageRole {
