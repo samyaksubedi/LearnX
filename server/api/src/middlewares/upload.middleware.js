@@ -54,7 +54,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 650 * 1024 * 1024, // 650mb -> Cloudinary free plan limits to max 100mb : ) 
+    fileSize: 650 * 1024 * 1024, // 650mb -> Cloudinary free plan limits to max 100mb so shifter to B2 bucket it has free 10gbs  : ) : ) 
   },
 });
 
