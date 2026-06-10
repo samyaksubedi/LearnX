@@ -6,6 +6,9 @@ import { ApiError } from '../utils/api-output.util.js';
 //! MulterError from file uploads, or any unexpected error.
 
 const errorMiddleware = (err, req, res, next) => {
+  // console.log(err);
+  // console.log(typeof err);
+  // console.log(err.stack);
   if (err instanceof ApiError) {
     logger.warn('Predicted Error :', {
       method: req.method,

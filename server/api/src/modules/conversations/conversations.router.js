@@ -20,6 +20,7 @@ import {
   getConversation,
   getConversations,
   getConversationStatus,
+  updateConversationTitle,
 } from './conversations.controller.js';
 import { validate } from '../../middlewares/validate.middleware.js';
 import {
@@ -46,9 +47,10 @@ router.post(
 );
 router.post(
   '/:conversationId/update-title',
+  authenticateUser,
   validate(convoIdParams, 'params'),
   validate(updateConvoTitleReqBody),
-  chatWithConversation,
+  updateConversationTitle,
 );
 router.get('/', authenticateUser, getConversations);
 router.get(

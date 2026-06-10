@@ -54,7 +54,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 200mb
+    fileSize: 100 * 1024 * 1024, // 100mb -> Cloudinary free plan limits to max 100mb : ) 
   },
 });
 

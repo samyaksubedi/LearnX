@@ -3,6 +3,7 @@ import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { validateYoutubeUrl } from './conversations.youtube.js';
 import { deleteSourceFile, uploadSourceFile } from './conversation.upload.js';
+import { logger } from '../../Configs/logger.config.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url
@@ -38,6 +39,7 @@ const createConversationFromYoutube = async (userId, sourceLink) => {
 const createConversationFromMedia = async ({
   userId,
   filePath,
+  fileSize,
   mimeType,
   originalName,
 }) => {
@@ -51,7 +53,11 @@ const createConversationFromMedia = async ({
 
   const sourceType = mimeToSourceType(mimeType);
 
-  const { publicId, secureUrl } = await uploadSourceFile(filePath, sourceType);
+  const { publicId, secureUrl } = await uploadSourceFile(
+    filePath,
+    sourceType,
+    fileSize,
+  );
   const conversation = await prisma.conversation.create({
     data: {
       userId,
@@ -159,6 +165,7 @@ const getConversationStatus = async (userId, conversationId) => {
 };
 const chatWithConversation = async () => {};
 const updateConversationTitle = async (userId, conversationId, title) => {
+ 
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
     select: {

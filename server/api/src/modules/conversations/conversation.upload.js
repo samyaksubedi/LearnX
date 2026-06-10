@@ -1,6 +1,7 @@
 // Handles medias to be uploaded to Cloudinary for frontend preview :)
 
 import { cloudinary } from '../../configs/cloudinary.config.js';
+import { logger } from '../../configs/logger.config.js';
 import { ApiError } from '../../utils/api-output.util.js';
 
 const CLOUDINARY_FOLDERS = {
@@ -9,46 +10,62 @@ const CLOUDINARY_FOLDERS = {
   video: 'LearnX/video',
 };
 
-const uploadSourceFile = async (filePath, type) => {
-  const folder = CLOUDINARY_FOLDERS[type];
+const CHUNKED_UPLOAD_THRESHOLD = 90 * 1024 * 1024; // 90 MB
 
-  if (!folder) {
-    throw new ApiError(400, `Unsupported source type: ${type}`);
+const uploadSourceFile = async (filePath, type, fileSize) => {
+  try {
+    const folder = CLOUDINARY_FOLDERS[type];
+
+    if (!folder) {
+      throw new ApiError(400, `Unsupported source type: ${type}`);
+    }
+
+    const resourceType =
+      type === 'pdf'
+        ? 'raw'
+        : type === 'audio' || type === 'video'
+          ? 'video'
+          : 'auto';
+
+    let uploadResult;
+
+    // Files > 90 MB -> chunked upload
+    if (fileSize > CHUNKED_UPLOAD_THRESHOLD) {
+      uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_chunked(
+          filePath,
+          {
+            folder,
+            resource_type: resourceType,
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          },
+        );
+      });
+    } else {
+      uploadResult = await cloudinary.uploader.upload(filePath, {
+        folder,
+        resource_type: resourceType,
+      });
+    }
+
+    if (!uploadResult?.public_id || !uploadResult?.secure_url) {
+      throw new ApiError(500, 'Cloudinary upload failed');
+    }
+
+    return {
+      publicId: uploadResult.public_id,
+      secureUrl: uploadResult.secure_url,
+    };
+  } catch (error) {
+    throw new ApiError(
+      error.http_code || 500,
+      error.message || 'Cloudinary upload failed',
+    );
   }
-
-  const uploadResult = await cloudinary.uploader.upload(filePath, {
-    folder,
-    resource_type: 'auto',
-  });
-
-  return {
-    publicId: uploadResult.public_id,
-    secureUrl: uploadResult.secure_url,
-  };
 };
-// const uploadSourceFile = async (filePath, type) => {
-//   const folder = CLOUDINARY_FOLDERS[type];
-
-//   if (!folder) {
-//     throw new ApiError(400, `Unsupported source type: ${type}`);
-//   }
-
-//   let resourceType = 'auto';
-
-//   if (type === 'pdf') {
-//     resourceType = 'raw';
-//   }
-
-//   const uploadResult = await cloudinary.uploader.upload(filePath, {
-//     folder,
-//     resource_type: resourceType,
-//   });
-
-//   return {
-//     publicId: uploadResult.public_id,
-//     secureUrl: uploadResult.secure_url,
-//   };
-// };
 
 // Delete asset from Cloudinary using publicId
 const deleteSourceFile = async (publicId, type) => {

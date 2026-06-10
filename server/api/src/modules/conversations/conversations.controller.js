@@ -34,9 +34,10 @@ const fromUpload = async (req, res, next) => {
     const conversation = await conversationsService.createConversationFromMedia(
       {
         userId,
-        filePath: req.file.path,
-        mimeType: req.file.mimetype,
-        originalName: req.file.originalname,
+        filePath: file.path,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        originalName: file.originalname,
       },
     );
     return res
@@ -124,21 +125,22 @@ const chatWithConversation = async (req, res, next) => {};
 const updateConversationTitle = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { title } = res.body;
-    const { conversationId } = res.params;
+    const { title } = req.body;
+    const { conversationId } = req.params;
+
     await conversationsService.updateConversationTitle(
       userId,
       conversationId,
       title,
     );
+
     return res
       .status(200)
-      .json(new ApiResponse(200, { title }, 'Title updated successfull !'));
+      .json(new ApiResponse(200, { title }, 'Title updated successfully!'));
   } catch (error) {
     next(error);
   }
 };
-
 export {
   fromYoutube,
   fromUpload,
@@ -147,4 +149,5 @@ export {
   deleteConversation,
   getConversationStatus,
   chatWithConversation,
+  updateConversationTitle
 };
