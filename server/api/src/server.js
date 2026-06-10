@@ -5,13 +5,15 @@ import { app } from './app.js';
 import { logger } from './Configs/logger.config.js';
 import { testPostgresConnection } from './db/client.db.js';
 import { testMailTransporter } from './configs/mail.config.js';
-import { testCloudinaryConnection } from './configs/cloudinary.config.js';
+import { testStorageConnection } from './configs/storage.config.js';
+// import { testCloudinaryConnection } from './configs/cloudinary.config.js'; // Ignore this cause we aren't using cloudinary : )
 
 const PORT = envVariables.PORT || 3000;
 
 async function startServer() {
   await testPostgresConnection();
-  await testCloudinaryConnection(); // Un-comment only while testing : - on each ping() triggers rate limit : )
+  // await testCloudinaryConnection(); // We are using B2 bucket as storage now so ignore cloudinary
+  await testStorageConnection();
   // await connectRedis();
   testMailTransporter();
   app.listen(PORT, () => {

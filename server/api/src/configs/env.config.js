@@ -40,4 +40,10 @@ export const envVariables = {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  B2_KEY_ID: process.env.B2_KEY_ID,
+  B2_APP_KEY: process.env.B2_APP_KEY,
+  B2_BUCKET_NAME: process.env.B2_BUCKET_NAME,
+  B2_REGION: process.env.B2_REGION,
+  B2_ENDPOINT: process.env.B2_ENDPOINT,
+  B2_PUBLIC_URL: process.env.B2_PUBLIC_URL,
 };

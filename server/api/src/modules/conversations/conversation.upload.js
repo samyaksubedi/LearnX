@@ -1,97 +1,87 @@
-// Handles medias to be uploaded to Cloudinary for frontend preview :)
+// Handles medias to be uploaded to Backblaze B2 for frontend preview :)
 
-import { cloudinary } from '../../configs/cloudinary.config.js';
-import { logger } from '../../configs/logger.config.js';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { createReadStream, statSync } from 'fs';
+import { storageClient } from '../../configs/storage.config.js';
+import { envVariables } from '../../configs/env.config.js';
 import { ApiError } from '../../utils/api-output.util.js';
+import { randomUUID } from 'crypto';
 
-const CLOUDINARY_FOLDERS = {
+const B2_FOLDERS = {
   pdf: 'LearnX/pdf',
   audio: 'LearnX/audio',
   video: 'LearnX/video',
 };
 
-const CHUNKED_UPLOAD_THRESHOLD = 90 * 1024 * 1024; // 90 MB
+const CONTENT_TYPES = {
+  pdf: 'application/pdf',
+  audio: 'audio/mpeg',
+  video: 'video/mp4',
+};
 
+// No chunked threshold needed — B2 has no 100MB limit :)
 const uploadSourceFile = async (filePath, type, fileSize) => {
   try {
-    const folder = CLOUDINARY_FOLDERS[type];
+    const folder = B2_FOLDERS[type];
 
     if (!folder) {
       throw new ApiError(400, `Unsupported source type: ${type}`);
     }
 
-    const resourceType =
-      type === 'pdf'
-        ? 'raw'
-        : type === 'audio' || type === 'video'
-          ? 'video'
-          : 'auto';
+    const fileId = randomUUID();
+    const key = `${folder}/${fileId}`;
+    const fileStream = createReadStream(filePath);
+    const contentType = CONTENT_TYPES[type] || 'application/octet-stream';
 
-    let uploadResult;
+    await storageClient.send(
+      new PutObjectCommand({
+        Bucket: envVariables.B2_BUCKET_NAME,
+        Key: key,
+        Body: fileStream,
+        ContentType: contentType,
+        ContentLength: fileSize,
+      }),
+    );
 
-    // Files > 90 MB -> chunked upload
-    if (fileSize > CHUNKED_UPLOAD_THRESHOLD) {
-      uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_chunked(
-          filePath,
-          {
-            folder,
-            resource_type: resourceType,
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          },
-        );
-      });
-    } else {
-      uploadResult = await cloudinary.uploader.upload(filePath, {
-        folder,
-        resource_type: resourceType,
-      });
-    }
-
-    if (!uploadResult?.public_id || !uploadResult?.secure_url) {
-      throw new ApiError(500, 'Cloudinary upload failed');
-    }
+    // Public URL format for B2 public buckets
+    const secureUrl = `${envVariables.B2_PUBLIC_URL}/file/${envVariables.B2_BUCKET_NAME}/${key}`;
 
     return {
-      publicId: uploadResult.public_id,
-      secureUrl: uploadResult.secure_url,
+      publicId: key, // key acts as publicId for deletion
+      secureUrl,
     };
   } catch (error) {
     throw new ApiError(
-      error.http_code || 500,
-      error.message || 'Cloudinary upload failed',
+      error.$metadata?.httpStatusCode || 500,
+      error.message || 'B2 upload failed',
     );
   }
 };
 
-// Delete asset from Cloudinary using publicId
+// Delete asset from B2 using publicId (which is the key)
 const deleteSourceFile = async (publicId, type) => {
   if (!publicId) {
     throw new ApiError(400, 'publicId is required to delete asset');
   }
 
-  let resourceType = 'image';
+  try {
+    await storageClient.send(
+      new DeleteObjectCommand({
+        Bucket: envVariables.B2_BUCKET_NAME,
+        Key: publicId,
+      }),
+    );
 
-  if (type === 'pdf') resourceType = 'raw';
-  if (type === 'audio' || type === 'video') resourceType = 'video';
-
-  const result = await cloudinary.uploader.destroy(publicId, {
-    resource_type: resourceType,
-  });
-
-  if (result.result !== 'ok') {
+    return {
+      success: true,
+      result: 'ok',
+    };
+  } catch (error) {
     throw new ApiError(
-      400,
-      `Failed to delete asset from Cloudinary: ${result.result}`,
+      error.$metadata?.httpStatusCode || 500,
+      `Failed to delete asset from B2: ${error.message}`,
     );
   }
-
-  return {
-    success: true,
-    result: result.result,
-  };
 };
+
 export { uploadSourceFile, deleteSourceFile };
