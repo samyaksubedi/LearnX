@@ -1,4 +1,4 @@
-import { ApiResponse } from '../../utils/api-output.util.js';
+import { ApiError, ApiResponse } from '../../utils/api-output.util.js';
 import { conversationsService } from './conversations.service.js';
 
 const fromYoutube = async (req, res, next) => {
@@ -26,10 +26,28 @@ const fromYoutube = async (req, res, next) => {
 };
 const fromUpload = async (req, res, next) => {
   try {
+    const userId = req.user.id;
     const file = req.file;
+    if (!file) {
+      return res.status(400).json(new ApiError(400, 'File is required !'));
+    }
+    const conversation = await conversationsService.createConversationFromMedia(
+      {
+        userId,
+        filePath: req.file.path,
+        mimeType: req.file.mimetype,
+        originalName: req.file.originalname,
+      },
+    );
     return res
       .status(200)
-      .json(new ApiResponse(200, file, 'backend got file successfully'));
+      .json(
+        new ApiResponse(
+          200,
+          conversation,
+          'Conversation created and started processing in the background !',
+        ),
+      );
   } catch (error) {
     next(error);
   }
@@ -103,6 +121,23 @@ const getConversationStatus = async (req, res, next) => {
   }
 };
 const chatWithConversation = async (req, res, next) => {};
+const updateConversationTitle = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { title } = res.body;
+    const { conversationId } = res.params;
+    await conversationsService.updateConversationTitle(
+      userId,
+      conversationId,
+      title,
+    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { title }, 'Title updated successfull !'));
+  } catch (error) {
+    next(error);
+  }
+};
 
 export {
   fromYoutube,

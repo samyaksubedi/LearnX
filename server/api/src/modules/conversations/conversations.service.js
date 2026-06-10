@@ -2,6 +2,7 @@ import { id } from 'zod/v4/locales';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { validateYoutubeUrl } from './conversations.youtube.js';
+import { deleteSourceFile, uploadSourceFile } from './conversation.upload.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url
@@ -34,7 +35,45 @@ const createConversationFromYoutube = async (userId, sourceLink) => {
   //TODO Publish to queue
   return conversation;
 };
-const createConversationFromMedia = async () => {};
+const createConversationFromMedia = async ({
+  userId,
+  filePath,
+  mimeType,
+  originalName,
+}) => {
+  const mimeToSourceType = (mimeType) => {
+    if (mimeType.startsWith('video/')) return 'video';
+    if (mimeType.startsWith('audio/')) return 'audio';
+    if (mimeType === 'application/pdf') return 'pdf';
+
+    throw new ApiError(400, 'Unsupported file type');
+  };
+
+  const sourceType = mimeToSourceType(mimeType);
+
+  const { publicId, secureUrl } = await uploadSourceFile(filePath, sourceType);
+  const conversation = await prisma.conversation.create({
+    data: {
+      userId,
+      title: originalName || 'Untitled Media',
+      sourceLink: secureUrl,
+      sourcePublicId: publicId,
+      sourceType,
+      status: 'processing',
+    },
+    select: {
+      id: true,
+      title: true,
+      sourceLink: true,
+      sourceType: true,
+      status: true,
+    },
+  });
+
+  // TODO: publish to queue
+
+  return conversation;
+};
 const getConversations = async (userId) => {
   const conversations = await prisma.conversation.findMany({
     where: { userId },
@@ -93,12 +132,13 @@ const deleteConversation = async (userId, conversationId) => {
   if (conversation.userId !== userId) {
     throw new ApiError(403, 'Unauthorized');
   }
+  // Delete uploaded Media related to the conversation from cloudinary
+  await deleteSourceFile(conversation.sourcePublicId, conversation.sourceType);
 
   // Delete conversation — cascade deletes all messages automatically
   await prisma.conversation.delete({
     where: { id: conversationId },
   });
-  //TODO  Delete linked files from cloudinary
 };
 const getConversationStatus = async (userId, conversationId) => {
   const conversation = await prisma.conversation.findUnique({
@@ -118,6 +158,29 @@ const getConversationStatus = async (userId, conversationId) => {
   return conversation.status;
 };
 const chatWithConversation = async () => {};
+const updateConversationTitle = async (userId, conversationId, title) => {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: {
+      userId: true,
+    },
+  });
+  if (!conversation) {
+    throw new ApiError(404, 'Conversation not found');
+  }
+  // Prevent user from updating another user's conversation title
+  if (conversation.userId !== userId) {
+    throw new ApiError(403, 'Unauthorized');
+  }
+  await prisma.conversation.update({
+    where: {
+      id: conversationId,
+    },
+    data: {
+      title,
+    },
+  });
+};
 
 export const conversationsService = {
   createConversationFromYoutube,
@@ -127,4 +190,5 @@ export const conversationsService = {
   deleteConversation,
   getConversationStatus,
   chatWithConversation,
+  updateConversationTitle,
 };

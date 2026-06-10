@@ -11,7 +11,7 @@ const PORT = envVariables.PORT || 3000;
 
 async function startServer() {
   await testPostgresConnection();
-  // await testCloudinaryConnection(); // Un-comment only while testing : - on each ping() triggers rate limit : )
+  await testCloudinaryConnection(); // Un-comment only while testing : - on each ping() triggers rate limit : )
   // await connectRedis();
   testMailTransporter();
   app.listen(PORT, () => {

@@ -26,6 +26,7 @@ import {
   chatReqBody,
   convoIdParams,
   createConvoFromYoutubeReqBody,
+  updateConvoTitleReqBody,
 } from './conversations.validation.js';
 import { upload } from '../../middlewares/upload.middleware.js';
 
@@ -42,6 +43,12 @@ router.post(
   authenticateUser,
   upload.single('file'),
   fromUpload,
+);
+router.post(
+  '/:conversationId/update-title',
+  validate(convoIdParams, 'params'),
+  validate(updateConvoTitleReqBody),
+  chatWithConversation,
 );
 router.get('/', authenticateUser, getConversations);
 router.get(

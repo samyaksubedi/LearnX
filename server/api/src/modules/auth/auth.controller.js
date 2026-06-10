@@ -98,7 +98,6 @@ const logoutFromAllDevices = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const deviceCount = await authService.logoutFromAllDevices(userId);
-    console.log(deviceCount);
 
     res.clearCookie('refreshToken', {
       httpOnly: true,

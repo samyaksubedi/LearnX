@@ -26,16 +26,45 @@ const uploadSourceFile = async (filePath, type) => {
     secureUrl: uploadResult.secure_url,
   };
 };
+// const uploadSourceFile = async (filePath, type) => {
+//   const folder = CLOUDINARY_FOLDERS[type];
+
+//   if (!folder) {
+//     throw new ApiError(400, `Unsupported source type: ${type}`);
+//   }
+
+//   let resourceType = 'auto';
+
+//   if (type === 'pdf') {
+//     resourceType = 'raw';
+//   }
+
+//   const uploadResult = await cloudinary.uploader.upload(filePath, {
+//     folder,
+//     resource_type: resourceType,
+//   });
+
+//   return {
+//     publicId: uploadResult.public_id,
+//     secureUrl: uploadResult.secure_url,
+//   };
+// };
 
 // Delete asset from Cloudinary using publicId
-const deleteSourceFile = async (publicId) => {
+const deleteSourceFile = async (publicId, type) => {
   if (!publicId) {
     throw new ApiError(400, 'publicId is required to delete asset');
   }
 
-  const result = await cloudinary.uploader.destroy(publicId);
+  let resourceType = 'image';
 
-  // Cloudinary returns: { result: 'ok' } or { result: 'not found' }
+  if (type === 'pdf') resourceType = 'raw';
+  if (type === 'audio' || type === 'video') resourceType = 'video';
+
+  const result = await cloudinary.uploader.destroy(publicId, {
+    resource_type: resourceType,
+  });
+
   if (result.result !== 'ok') {
     throw new ApiError(
       400,
@@ -48,5 +77,4 @@ const deleteSourceFile = async (publicId) => {
     result: result.result,
   };
 };
-
 export { uploadSourceFile, deleteSourceFile };

@@ -10,4 +10,14 @@ const chatReqBody = z.object({
 const createConvoFromYoutubeReqBody = z.object({
   sourceLink: z.url(),
 });
-export { convoIdParams, chatReqBody, createConvoFromYoutubeReqBody };
+
+const updateConvoTitleReqBody = z.object({
+  title: z.string(),
+});
+
+export {
+  convoIdParams,
+  chatReqBody,
+  createConvoFromYoutubeReqBody,
+  updateConvoTitleReqBody,
+};
