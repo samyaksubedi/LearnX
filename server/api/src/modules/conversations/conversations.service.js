@@ -98,6 +98,7 @@ const deleteConversation = async (userId, conversationId) => {
   await prisma.conversation.delete({
     where: { id: conversationId },
   });
+  //TODO  Delete linked files from cloudinary
 };
 const getConversationStatus = async (userId, conversationId) => {
   const conversation = await prisma.conversation.findUnique({

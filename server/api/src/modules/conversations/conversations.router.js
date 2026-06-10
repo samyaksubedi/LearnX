@@ -27,6 +27,7 @@ import {
   convoIdParams,
   createConvoFromYoutubeReqBody,
 } from './conversations.validation.js';
+import { upload } from '../../middlewares/upload.middleware.js';
 
 const router = express.Router();
 
@@ -36,7 +37,12 @@ router.post(
   validate(createConvoFromYoutubeReqBody),
   fromYoutube,
 );
-router.post('/from-upload', authenticateUser, fromUpload);
+router.post(
+  '/from-upload',
+  authenticateUser,
+  upload.single('file'),
+  fromUpload,
+);
 router.get('/', authenticateUser, getConversations);
 router.get(
   '/:conversationId',

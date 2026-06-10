@@ -288,3 +288,10 @@ pids/
 # Windows
 Thumbs.db
 desktop.ini
+
+#  shared folder 
+# ignore uploaded files
+server/shared/uploads/*
+
+# but keep folder structure
+!server/shared/uploads/.gitkeep

@@ -24,7 +24,16 @@ const fromYoutube = async (req, res, next) => {
     next(error);
   }
 };
-const fromUpload = async (req, res, next) => {};
+const fromUpload = async (req, res, next) => {
+  try {
+    const file = req.file;
+    return res
+      .status(200)
+      .json(new ApiResponse(200, file, 'backend got file successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
 const getConversations = async (req, res, next) => {
   try {
     const userId = req.user.id;
