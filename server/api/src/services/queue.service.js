@@ -10,11 +10,13 @@ const enqueueConversationJob = async (payload) => {
   // {
   //   conversationId,
   //   filePath,
+  //   type,
   // }
   // or
   // {
   //   conversationId,
   //   youtubeUrl,
+  //   type,
   // }
   {
   }

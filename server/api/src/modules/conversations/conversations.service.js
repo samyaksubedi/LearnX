@@ -36,7 +36,8 @@ const createConversationFromYoutube = async (userId, sourceLink) => {
   //TODO Publish to queue
   await enqueueConversationJob({
     conversationId: conversation.id,
-    youtubeUrl: sourceLink,
+    youtubeUrl: conversation.sourceLink,
+    type: conversation.sourceType,
   });
   return conversation;
 };
@@ -84,6 +85,7 @@ const createConversationFromMedia = async ({
   enqueueConversationJob({
     conversationId: conversation.id,
     filePath: filePath,
+    type: conversation.sourceType,
   });
 
   return conversation;
