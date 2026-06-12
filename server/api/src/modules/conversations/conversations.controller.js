@@ -149,5 +149,5 @@ export {
   deleteConversation,
   getConversationStatus,
   chatWithConversation,
-  updateConversationTitle
+  updateConversationTitle,
 };

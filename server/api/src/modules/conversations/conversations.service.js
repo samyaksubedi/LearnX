@@ -1,9 +1,9 @@
-import { id } from 'zod/v4/locales';
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { validateYoutubeUrl } from './conversations.youtube.js';
 import { deleteSourceFile, uploadSourceFile } from './conversation.upload.js';
 import { logger } from '../../Configs/logger.config.js';
+import { enqueueConversationJob } from '../../services/queue.service.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url
@@ -34,6 +34,10 @@ const createConversationFromYoutube = async (userId, sourceLink) => {
   });
 
   //TODO Publish to queue
+  await enqueueConversationJob({
+    conversationId: conversation.id,
+    youtubeUrl: sourceLink,
+  });
   return conversation;
 };
 const createConversationFromMedia = async ({
@@ -77,6 +81,10 @@ const createConversationFromMedia = async ({
   });
 
   // TODO: publish to queue
+  enqueueConversationJob({
+    conversationId: conversation.id,
+    filePath: filePath,
+  });
 
   return conversation;
 };
@@ -165,7 +173,6 @@ const getConversationStatus = async (userId, conversationId) => {
 };
 const chatWithConversation = async () => {};
 const updateConversationTitle = async (userId, conversationId, title) => {
- 
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
     select: {

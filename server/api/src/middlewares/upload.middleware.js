@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { ApiError } from '../utils/api-output.util.js';
 
-const baseUploadPath = path.resolve('../shared/uploads');
+const baseUploadPath = path.resolve('../shared/uploads'); // absolute path
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
       return cb(new ApiError(400, 'Unsupported file type'));
     }
 
-    const destination = path.join(baseUploadPath, folder);
+    const destination = path.join(baseUploadPath, folder); // It will be absolute path : ) so python can access it smothly : ) 
 
     fs.mkdirSync(destination, { recursive: true });
 
@@ -54,7 +54,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 650 * 1024 * 1024, // 650mb -> Cloudinary free plan limits to max 100mb so shifter to B2 bucket it has free 10gbs  : ) : ) 
+    fileSize: 650 * 1024 * 1024, // 650mb -> Cloudinary free plan limits to max 100mb so shifter to B2 bucket it has free 10gbs  : ) : )
   },
 });
 
