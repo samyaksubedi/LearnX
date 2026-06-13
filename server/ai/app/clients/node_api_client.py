@@ -20,8 +20,8 @@ def update_conversation_status(conversation_id, status, error_message=None):
             timeout=10,
         )
 
-        print("Status:", response.status_code)
-        print("Response body:", response.text)
+        # print("Status:", response.status_code)
+        # print("Response body:", response.text)
 
         response.raise_for_status()
 
@@ -35,4 +35,4 @@ def update_conversation_status(conversation_id, status, error_message=None):
         print("Error:", e)
 
 
-update_conversation_status("e2bbf1ae-9296-4104-8769-607620a56139", "ready")
+# update_conversation_status("e2bbf1ae-9296-4104-8769-607620a56139", "ready")

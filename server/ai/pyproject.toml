@@ -7,4 +7,5 @@ requires-python = ">=3.11"
 dependencies = [
     "redis>=8.0.0",
     "requests>=2.34.2",
+    "yt-dlp>=2026.6.9",
 ]

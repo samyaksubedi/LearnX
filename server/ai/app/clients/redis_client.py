@@ -1,7 +1,8 @@
 import redis
-import os
+# import os
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+
+# REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 redis_client = redis.Redis(
     host="localhost",
@@ -9,9 +10,15 @@ redis_client = redis.Redis(
     password="qwertyuiop",
     decode_responses=True,
     socket_timeout=None,
-    retry_on_timeout=True,
+    retry_on_timeout=False,
 )
 
 
 def get_redis():
-    return redis_client
+    try:
+        redis_client.ping()
+        print("Redis Connected")  # TODO Use Logging
+        return redis_client
+    except Exception as e:
+        print("Redis connection failed:", repr(e))  # TODO Use Logging
+        raise RuntimeError(f"Redis connection failed: {e}") from e

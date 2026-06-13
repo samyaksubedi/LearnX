@@ -1,7 +1,7 @@
 import json
 import time
 from app.clients.redis_client import get_redis
-from server.ai.app.services.conversation.process_conversation import process_conversation_job
+from app.services.conversation.process_conversation import process_conversation_job
 
 
 QUEUE_NAME = "learnx:conversation-processing"
@@ -22,7 +22,6 @@ def start_worker():
 
         try:
             process_conversation_job(data)
-            print("Done")
 
         except Exception as e:
             print("❌ Failed:", e)
