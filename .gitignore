@@ -292,6 +292,8 @@ desktop.ini
 #  shared folder 
 # ignore uploaded files
 server/shared/uploads/*
+server/ai/tmp/*
 
 # but keep folder structure
 !server/shared/uploads/.gitkeep
+!server/ai/tmp/.gitkeep
