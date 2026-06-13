@@ -2,7 +2,7 @@ import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { validateYoutubeUrl } from './conversations.youtube.js';
 import { deleteSourceFile, uploadSourceFile } from './conversation.upload.js';
-import { logger } from '../../Configs/logger.config.js';
+import { logger } from '../../configs/logger.config.js';
 import { enqueueConversationJob } from '../../services/queue.service.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
@@ -82,7 +82,7 @@ const createConversationFromMedia = async ({
   });
 
   // TODO: publish to queue
-  enqueueConversationJob({
+  await enqueueConversationJob({
     conversationId: conversation.id,
     filePath: filePath,
     type: conversation.sourceType,

@@ -1,4 +1,4 @@
-import { envVariables } from '../Configs/env.config.js';
+import { envVariables } from '../configs/env.config.js';
 import { prisma } from '../db/client.db.js';
 import { ApiError } from '../utils/api-output.util.js';
 import jwt from 'jsonwebtoken';

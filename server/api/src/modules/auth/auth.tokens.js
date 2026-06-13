@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { envVariables } from '../../Configs/env.config.js';
+import { envVariables } from '../../configs/env.config.js';
 
 const generateEmailVerificationToken = () => {
   const emailVerificationToken = crypto.randomBytes(32).toString('hex');

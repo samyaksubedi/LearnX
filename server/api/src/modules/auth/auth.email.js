@@ -1,4 +1,4 @@
-import { envVariables } from '../../Configs/env.config.js';
+import { envVariables } from '../../configs/env.config.js';
 import { sendEmail } from '../../utils/email.util.js';
 
 const getEmailShell = ({
