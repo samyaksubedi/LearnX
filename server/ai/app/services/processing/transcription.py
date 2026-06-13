@@ -46,7 +46,7 @@ def _get_client():
     if _client is None:
         from openai import OpenAI
 
-        _client = OpenAI()
+        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
 

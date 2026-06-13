@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     # Qdrant
     QDRANT_URL: Optional[str] = None
+    QDRANT_API_KEY: Optional[str] = None
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
 
