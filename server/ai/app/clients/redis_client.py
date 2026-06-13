@@ -1,17 +1,25 @@
 import redis
+
 # import os
+from app.config import settings
 
 
-# REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+REDIS_URL = settings.get_redis_url
 
-redis_client = redis.Redis(
-    host="localhost",
-    port=6379,
-    password="qwertyuiop",
+redis_client = redis.Redis.from_url(
+    REDIS_URL,
     decode_responses=True,
     socket_timeout=None,
     retry_on_timeout=False,
 )
+# redis_client = redis.Redis(
+#     host="localhost",
+#     port=6379,
+#     password="qwertyuiop",
+#     decode_responses=True,
+#     socket_timeout=None,
+#     retry_on_timeout=False,
+# )
 
 
 def get_redis():

@@ -1,6 +1,7 @@
 from app.services.ingestion.youtube import validate_youtube_url, download_audio
 from app.services.ingestion.exceptions import IngestionError
 from app.clients.node_api_client import update_conversation_status
+from app.services.processing.transcription import transcribe
 import os
 
 
@@ -15,9 +16,11 @@ def process_youtube_conversation(payload):
         validate_youtube_url(youtube_url)
         print("Youtube Link validated successfully ")
         #  download audio from youtube video url
-        download_audio(youtube_url, output_dir)
+        temp_yt_audio_path = download_audio(youtube_url, output_dir)
         print("Youtube's audio downloaded successfully")
         #  transcribe that audio -> returns raw segments/chunks
+        raw_chunks = transcribe(temp_yt_audio_path)
+        print(raw_chunks)
         #  process raw chunks / segments to langchain defined document format including metadata: )
         #  embed the generated chunks using langchain vector store  : )
         update_conversation_status(conversation_id, "ready")
@@ -31,6 +34,7 @@ def process_youtube_conversation(payload):
         )
     except Exception as e:
         print("Unexpected Error : ", {e})
+        # Node_API should always be up and running : )
         update_conversation_status(
             conversation_id,
             "failed",
