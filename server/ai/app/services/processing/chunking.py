@@ -10,7 +10,9 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-def chunk_transcript(segments, conversation_id, chunk_duration=60, overlap_duration=15):
+def chunk_transcript(
+    segments, conversation_id, type, chunk_duration=60, overlap_duration=15
+):
     chunks = []
     current_chunk = []
     current_start = segments[0]["start"]
@@ -26,6 +28,7 @@ def chunk_transcript(segments, conversation_id, chunk_duration=60, overlap_durat
                         "conversation_id": conversation_id,
                         "start": current_chunk[0]["start"],
                         "end": current_chunk[-1]["end"],
+                        "type": type,
                     },
                 )
             )
@@ -42,6 +45,7 @@ def chunk_transcript(segments, conversation_id, chunk_duration=60, overlap_durat
                     "conversation_id": conversation_id,
                     "start": current_chunk[0]["start"],
                     "end": current_chunk[-1]["end"],
+                    "type": type,
                 },
             )
         )
@@ -49,7 +53,7 @@ def chunk_transcript(segments, conversation_id, chunk_duration=60, overlap_durat
     return chunks
 
 
-def chunk_pdf(pages, conversation_id, chunk_size=1000, chunk_overlap=150):
+def chunk_pdf(pages, conversation_id, type, chunk_size=1000, chunk_overlap=150):
     """
     pages: list of {"page_number": int, "text": str}
     """
@@ -68,6 +72,7 @@ def chunk_pdf(pages, conversation_id, chunk_size=1000, chunk_overlap=150):
                     metadata={
                         "conversation_id": conversation_id,
                         "page": page["page_number"],
+                        "type": type,
                     },
                 )
             )

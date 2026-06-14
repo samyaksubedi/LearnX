@@ -12,3 +12,4 @@ async def chat(request_body: ChatRequest):
         request_body.query, request_body.conversation_id, request_body.history
     )
     return result
+  

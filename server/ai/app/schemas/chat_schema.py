@@ -19,4 +19,4 @@ class PageReference(BaseModel):  # For pdf chat
 
 class ChatResponse(BaseModel):
     response: str
-    source_reference: Union[RangeReference, PageReference]
+    source_reference: Optional[Union[RangeReference, PageReference]] = None

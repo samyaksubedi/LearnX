@@ -11,6 +11,7 @@ def process_youtube_conversation(payload):
     try:
         youtube_url = payload["youtubeUrl"]
         conversation_id = payload["conversationId"]
+        _type = payload["type"]
         output_dir = os.path.join(
             "tmp", "yt-audio"
         )  # Since we will be running worker.py and it's in root so we can directly do this join : )
@@ -25,7 +26,7 @@ def process_youtube_conversation(payload):
         print("Youtube's audio raw transcribed successfully ")
         # print(raw_chunks)
         #  process raw chunks / segments to langchain defined document format including metadata: )
-        langchain_documents = chunk_transcript(raw_chunks, conversation_id)
+        langchain_documents = chunk_transcript(raw_chunks, conversation_id, _type)
         print("Youtube's audio raw transcription chunked into Documents successfully !")
         #  embed the generated chunks using langchain vector store  : )
         embed_and_store(langchain_documents)
