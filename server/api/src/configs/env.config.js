@@ -32,6 +32,7 @@ export const envVariables = {
   GMAIL_USER: process.env.GMAIL_USER,
   CLIENT_URL: process.env.CLIENT_URL,
   SERVER_URL: process.env.SERVER_URL,
+  AI_URL: process.env.AI_URL,
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
   WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
   REDIS_URL: getRedisUrl(),

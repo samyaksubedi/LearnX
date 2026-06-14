@@ -1,4 +1,5 @@
 import { ApiError, ApiResponse } from '../../utils/api-output.util.js';
+import { getUsersConversationHistory } from './conversations.history.js';
 import { conversationsService } from './conversations.service.js';
 
 const fromYoutube = async (req, res, next) => {
@@ -121,7 +122,26 @@ const getConversationStatus = async (req, res, next) => {
     next(error);
   }
 };
-const chatWithConversation = async (req, res, next) => {};
+const chatWithConversation = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { query } = req.body;
+    const { conversationId } = req.params;
+
+    const chatResponse = await conversationsService.chatWithConversation(
+      userId,
+      conversationId,
+      query,
+    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, { chatResponse }, 'AI responded successfully'),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 const updateConversationTitle = async (req, res, next) => {
   try {
     const userId = req.user.id;

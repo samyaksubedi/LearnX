@@ -73,6 +73,7 @@ router.delete(
 );
 router.post(
   '/:conversationId/chat',
+  authenticateUser,
   validate(convoIdParams, 'params'),
   validate(chatReqBody),
   chatWithConversation,

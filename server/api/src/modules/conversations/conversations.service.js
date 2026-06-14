@@ -1,9 +1,11 @@
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
 import { validateYoutubeUrl } from './conversations.youtube.js';
-import { deleteSourceFile, uploadSourceFile } from './conversation.upload.js';
+import { deleteSourceFile, uploadSourceFile } from './conversations.upload.js';
 import { logger } from '../../configs/logger.config.js';
 import { enqueueConversationJob } from '../../services/queue.service.js';
+import { getUsersConversationHistory } from './conversations.history.js';
+import { getAIAnswer } from './conversations.ai.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url
@@ -173,7 +175,52 @@ const getConversationStatus = async (userId, conversationId) => {
   }
   return conversation.status;
 };
-const chatWithConversation = async () => {};
+const chatWithConversation = async (userId, conversationId, query) => {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    select: {
+      status: true,
+      userId: true,
+    },
+  });
+  if (!conversation) {
+    throw new ApiError(404, 'Conversation not found');
+  }
+  // Prevent user from chatting in another user's conversation
+  if (conversation.userId !== userId) {
+    throw new ApiError(403, 'Unauthorized');
+  }
+  if (conversation.status !== 'ready') {
+    throw new ApiError(
+      400,
+      'Sorry Conversation is being processed or eventually ! Cant chat right now ',
+    );
+  }
+  // Create seperate message for user Query : )
+  await prisma.message.create({
+    data: {
+      conversationId,
+      role: 'User',
+      content: query,
+    },
+  });
+  const chatHistory = await getUsersConversationHistory(conversationId, 10);
+  const result = await getAIAnswer(query, conversationId, chatHistory);
+  const content = result.response;
+  const sourceReference  = result.source_reference;
+  //  If pdf :  {pageNumber} else {start,end}
+  // Create seperate message for AI response
+  await prisma.message.create({
+    data: {
+      conversationId,
+      role: 'Assistant',
+      content,
+      sourceReference ,
+    },
+  });
+  return { content, sourceReference  };
+};
+
 const updateConversationTitle = async (userId, conversationId, title) => {
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },

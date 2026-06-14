@@ -69,7 +69,7 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   role           MessageRole
   content        String
-  sourceRefrence Json?
+  sourceReference  Json? // {start? ,end? , pageNumber?} --> Only for Assistant Messages
   createdAt      DateTime     @default(now())
 }
 
