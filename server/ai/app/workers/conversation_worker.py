@@ -1,7 +1,7 @@
 import json
 import time
 from app.clients.redis_client import get_redis
-from app.services.conversation.process_conversation import process_conversation_job
+from app.services.job.conversation_job_router import process_conversation_job
 
 
 QUEUE_NAME = "learnx:conversation-processing"

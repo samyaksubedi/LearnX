@@ -29,7 +29,10 @@ def _get_model():
 def _transcribe_local(audio_path: str) -> list[dict]:
     model = _get_model()
     segments, _ = model.transcribe(
-        audio_path, vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500)
+        audio_path,
+        vad_filter=True,
+        vad_parameters=dict(min_silence_duration_ms=500),
+        condition_on_previous_text=False,
     )
     return [
         {"start": s.start, "end": s.end, "text": s.text.strip()}

@@ -10,7 +10,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-def chunk_transcript(segments, conversation_id, chunk_duration=30, overlap_duration=5):
+def chunk_transcript(segments, conversation_id, chunk_duration=60, overlap_duration=15):
     chunks = []
     current_chunk = []
     current_start = segments[0]["start"]

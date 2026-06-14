@@ -32,7 +32,7 @@ def process_youtube_conversation(payload):
         print("Youtube's Convo Document chunks fully embeded and stored in v DB  !")
         update_conversation_status(conversation_id, "ready")
         print(f"Youtube conversation processed successfully : {conversation_id}")
-        pass
+        # TODO  remove all temp file created from ai/tmp and server/shared too
     except IngestionError as e:
         # log error
         print(str(e))  # TODO  Replace with a global logger
