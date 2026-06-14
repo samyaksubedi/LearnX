@@ -10,7 +10,8 @@ def transcribe(audio_path: str) -> list[dict]:
             return _transcribe_local(audio_path)
         else:
             return _transcribe_api(audio_path)
-    except Exception:
+    except Exception as e:
+        print(e)
         raise IngestionError("Transcription Failed : Python")
 
 

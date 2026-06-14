@@ -4,6 +4,7 @@ from app.clients.node_api_client import update_conversation_status
 from app.services.processing.transcription import transcribe
 from app.services.processing.chunking import chunk_transcript
 from app.rag.vector_store import embed_and_store
+from app.utils.file_utils import delete_files
 import os
 
 
@@ -33,7 +34,6 @@ def process_youtube_conversation(payload):
         print("Youtube's Convo Document chunks fully embeded and stored in v DB  !")
         update_conversation_status(conversation_id, "ready")
         print(f"Youtube conversation processed successfully : {conversation_id}")
-        # TODO  remove all temp file created from ai/tmp and server/shared too
     except IngestionError as e:
         # log error
         print(str(e))  # TODO  Replace with a global logger
@@ -48,3 +48,6 @@ def process_youtube_conversation(payload):
             "failed",
             "Something went wrong while processing youtube conversation : Python",
         )
+    finally:
+        delete_files(temp_yt_audio_path)
+        print("Temp youtube audio file deleted sucessfully")
