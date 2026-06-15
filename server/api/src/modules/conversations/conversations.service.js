@@ -207,7 +207,7 @@ const chatWithConversation = async (userId, conversationId, query) => {
   const chatHistory = await getUsersConversationHistory(conversationId, 10);
   const result = await getAIAnswer(query, conversationId, chatHistory);
   const content = result.response;
-  const sourceReference  = result.source_reference;
+  const sourceReference = result.source_reference;
   //  If pdf :  {pageNumber} else {start,end}
   // Create seperate message for AI response
   await prisma.message.create({
@@ -215,10 +215,10 @@ const chatWithConversation = async (userId, conversationId, query) => {
       conversationId,
       role: 'Assistant',
       content,
-      sourceReference ,
+      sourceReference,
     },
   });
-  return { content, sourceReference  };
+  return { content, sourceReference };
 };
 
 const updateConversationTitle = async (userId, conversationId, title) => {
