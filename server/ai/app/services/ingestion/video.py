@@ -1,8 +1,12 @@
-# extract_audio(video_path,output_path)
+import os
+import uuid
 import subprocess
+from app.services.ingestion.exceptions import IngestionError
 
 
-def extract_audio(video_path: str, output_path: str) -> str:
+def extract_audio(video_path: str, output_dir: str) -> str:
+    output_path = os.path.join(output_dir, f"{uuid.uuid4().hex}.mp3")
+
     try:
         subprocess.run(
             [
@@ -12,8 +16,12 @@ def extract_audio(video_path: str, output_path: str) -> str:
                 "-vn",
                 "-acodec",
                 "libmp3lame",
-                "-q:a",
-                "2",
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                "-b:a",
+                "64k",
                 "-y",
                 output_path,
             ],
@@ -22,4 +30,4 @@ def extract_audio(video_path: str, output_path: str) -> str:
         )
         return output_path
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Audio extraction failed: {e.stderr.decode()}")
+        raise IngestionError(f"Audio extraction failed: {e.stderr.decode()}") from e
