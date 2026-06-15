@@ -30,6 +30,7 @@ import {
   updateConvoTitleReqBody,
 } from './conversations.validation.js';
 import { upload } from '../../middlewares/upload.middleware.js';
+import { creditLimiter } from '../../middlewares/credits.middleware.js';
 
 const router = express.Router();
 
@@ -74,6 +75,7 @@ router.delete(
 router.post(
   '/:conversationId/chat',
   authenticateUser,
+  creditLimiter,
   validate(convoIdParams, 'params'),
   validate(chatReqBody),
   chatWithConversation,
