@@ -5,7 +5,7 @@ import { deleteSourceFile, uploadSourceFile } from './conversations.upload.js';
 import { logger } from '../../configs/logger.config.js';
 import { enqueueConversationJob } from '../../services/queue.service.js';
 import { getUsersConversationHistory } from './conversations.history.js';
-import { getAIAnswer } from './conversations.ai.js';
+import { deleteQdrantChunks, getAIAnswer } from './conversations.ai.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url
@@ -153,6 +153,8 @@ const deleteConversation = async (userId, conversationId) => {
   // Delete uploaded Media related to the conversation from cloudinary
   await deleteSourceFile(conversation.sourcePublicId, conversation.sourceType);
 
+  // Delete relate qdrant chunks from Qdrant DB
+  await deleteQdrantChunks(conversationId);
   // Delete conversation — cascade deletes all messages automatically
   await prisma.conversation.delete({
     where: { id: conversationId },

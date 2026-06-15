@@ -5,6 +5,7 @@ from app.rag.retrieval import retrieve
 from app.services.chat.schemas import LLMChatOutput
 from app.services.chat.prompts import chat_prompt
 from app.schemas.chat_schema import ChatResponse, RangeReference, PageReference
+from app.rag.vector_store import delete_conversation_vectors
 
 _llm = None
 
@@ -73,3 +74,7 @@ def generate_chat_response(
         source_reference = PageReference(pageNumber=result.source_page)
 
     return ChatResponse(response=result.answer, source_reference=source_reference)
+
+
+def delete_conversation(conversation_id):
+    delete_conversation_vectors(conversation_id)

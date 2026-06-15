@@ -20,3 +20,7 @@ class PageReference(BaseModel):  # For pdf chat
 class ChatResponse(BaseModel):
     response: str
     source_reference: Optional[Union[RangeReference, PageReference]] = None
+
+
+class ChatDeleteRequest(BaseModel):
+    conversation_id: str = Field(...)
