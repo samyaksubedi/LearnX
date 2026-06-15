@@ -71,7 +71,7 @@ def chunk_pdf(pages, conversation_id, type, chunk_size=1000, chunk_overlap=150):
                     page_content=chunk_text,
                     metadata={
                         "conversation_id": conversation_id,
-                        "page": page["page_number"],
+                        "page": page["page"],
                         "type": type,
                     },
                 )
