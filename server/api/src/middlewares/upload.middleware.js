@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
       return cb(new ApiError(400, 'Unsupported file type'));
     }
 
-    const destination = path.join(baseUploadPath, folder); // It will be absolute path : ) so python can access it smothly : ) 
+    const destination = path.join(baseUploadPath, folder); // It will be absolute path : ) so python can access it smothly : )
 
     fs.mkdirSync(destination, { recursive: true });
 

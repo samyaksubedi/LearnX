@@ -98,7 +98,7 @@ const getEmailShell = ({
 });
 
 const sendWelcomeEmail = async ({ to, name, emailVerificationToken }) => {
-  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${emailVerificationToken}`;
+  const verificationUrl = `${envVariables.CLIENT_URL}/auth/verify/${emailVerificationToken}`;
 
   const { html, text } = getEmailShell({
     name,
@@ -120,7 +120,7 @@ const resendVerificationEmail = async ({
   name,
   emailVerificationToken,
 }) => {
-  const verificationUrl = `${envVariables.CLIENT_URL}/verify/${emailVerificationToken}`;
+  const verificationUrl = `${envVariables.CLIENT_URL}/auth/verify/${emailVerificationToken}`;
 
   const { html, text } = getEmailShell({
     name,
