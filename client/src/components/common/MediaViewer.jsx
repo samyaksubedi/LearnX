@@ -12,6 +12,8 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
   const audioRef = useRef(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [iframeKey, setIframeKey] = useState(0); // ← counter to force iframe remount
+  const [youtubeStart, setYoutubeStart] = useState(0);
 
   // Handle citation jumps
   useEffect(() => {
@@ -21,16 +23,19 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
       setPageNumber(citationRef.pageNumber);
     }
 
-    if (['youtube', 'video', 'audio'].includes(sourceType)) {
-      if (sourceType === 'video' && videoRef.current) {
-        videoRef.current.currentTime = citationRef.start;
-        videoRef.current.play();
-      }
-      if (sourceType === 'audio' && audioRef.current) {
-        audioRef.current.currentTime = citationRef.start;
-        audioRef.current.play();
-      }
-      // YouTube handled via URL param (see below)
+    if (sourceType === 'video' && videoRef.current) {
+      videoRef.current.currentTime = citationRef.start;
+      videoRef.current.play();
+    }
+
+    if (sourceType === 'audio' && audioRef.current) {
+      audioRef.current.currentTime = citationRef.start;
+      audioRef.current.play();
+    }
+
+    if (sourceType === 'youtube') {
+      setYoutubeStart(Math.floor(citationRef.start)); // ← update start
+      setIframeKey((k) => k + 1); // ← force remount every time
     }
   }, [citationRef]);
 
@@ -43,7 +48,6 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
   };
 
   const youtubeId = sourceType === 'youtube' ? getYoutubeId(sourceLink) : null;
-  const youtubeStart = citationRef?.start ? Math.floor(citationRef.start) : 0;
 
   return (
     <div className='relative flex flex-col h-full bg-black/5'>
@@ -75,8 +79,8 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
       {/* YouTube */}
       {sourceType === 'youtube' && youtubeId && (
         <iframe
-          key={`${youtubeId}-${youtubeStart}`}
-          src={`https://www.youtube.com/embed/${youtubeId}?start=${youtubeStart}&autoplay=${youtubeStart > 0 ? 1 : 0}`}
+          key={iframeKey}
+          src={`https://www.youtube.com/embed/${youtubeId}?start=${youtubeStart}&autoplay=${iframeKey > 0 ? 1 : 0}`}
           className='w-full h-full'
           allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
           allowFullScreen
@@ -114,7 +118,6 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
       {/* PDF */}
       {sourceType === 'pdf' && (
         <div className='flex flex-col h-full'>
-          {/* PDF Controls */}
           <div className='flex items-center justify-between px-4 py-2 border-b border-border bg-background shrink-0'>
             <button
               onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
@@ -136,8 +139,6 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
               Next →
             </button>
           </div>
-
-          {/* PDF Document */}
           <div className='flex-1 overflow-auto flex justify-center p-4'>
             <Document
               file={sourceLink}

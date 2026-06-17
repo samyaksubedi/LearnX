@@ -119,10 +119,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
     mutationFn: logout,
     onSuccess: () => {
       clearAuth();
-      navigate('/sign-in');
+      window.location.href = '/';
+    },
+    onError: () => {
+      clearAuth();
+      window.location.href = '/';
     },
   });
-
   const handleRenameStart = (convo) => {
     setEditingId(convo.id);
     setEditTitle(convo.title || 'Untitled');

@@ -12,8 +12,8 @@ export const useAuthStore = create(
       clearAuth: () => set({ accessToken: null, user: null }),
     }),
     {
-      name: 'learnx-auth', // localStorage key
-      partialState: (state) => ({ user: state.user }), // only persist user, not accessToken
+      name: 'learnx-auth',
+      partialize: (state) => ({ user: state.user }), // ← fixed typo, only persists user
     },
   ),
 );

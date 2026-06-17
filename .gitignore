@@ -14,8 +14,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -297,3 +297,4 @@ server/ai/tmp/*
 # but keep folder structure
 !server/shared/uploads/.gitkeep
 !server/ai/tmp/.gitkeep
+

@@ -12,18 +12,39 @@ const formatTime = (seconds) => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
+const CitationBadge = ({ sourceRef, onCitation }) => {
+  if (!sourceRef) return null;
+
+  const isMedia = sourceRef.start !== undefined;
+  const label = isMedia
+    ? `Jump to ${formatTime(sourceRef.start)} - ${formatTime(sourceRef.end)}`
+    : `Page ${sourceRef.pageNumber}`;
+
+  return (
+    <button
+      onClick={() => onCitation(sourceRef)}
+      className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-accent border border-border/50 mt-1'
+    >
+      {isMedia ? (
+        <Clock className='h-3 w-3 shrink-0' />
+      ) : (
+        <FileText className='h-3 w-3 shrink-0' />
+      )}
+      {label}
+    </button>
+  );
+};
+
 const ChatPanel = ({ conversation, status, onCitation }) => {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState(conversation.messages || []);
   const bottomRef = useRef(null);
 
-  // Scroll to bottom on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Sync messages when conversation updates
   useEffect(() => {
     setMessages(conversation.messages || []);
   }, [conversation.messages]);
@@ -31,12 +52,11 @@ const ChatPanel = ({ conversation, status, onCitation }) => {
   const chatMutation = useMutation({
     mutationFn: (query) => chatWithConversation(conversation.id, query),
     onMutate: (query) => {
-      // Optimistically add user message
       const userMsg = {
         id: `temp-${Date.now()}`,
         role: 'User',
         content: query,
-        sourceRefrence: null,
+        sourceReference: null, // ← fixed
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMsg]);
@@ -47,12 +67,11 @@ const ChatPanel = ({ conversation, status, onCitation }) => {
         id: `ai-${Date.now()}`,
         role: 'Assistant',
         content,
-        sourceRefrence: sourceReference,
+        sourceReference: sourceReference, // ← fixed
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Auto-jump to citation
       if (sourceReference) {
         onCitation(sourceReference);
       }
@@ -60,7 +79,6 @@ const ChatPanel = ({ conversation, status, onCitation }) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
     onError: (error) => {
-      // Remove optimistic user message on error
       setMessages((prev) => prev.filter((m) => !m.id?.startsWith('temp-')));
       if (error.response?.status === 429) {
         toast.error('Daily limit reached. Try again tomorrow.');
@@ -121,7 +139,9 @@ const ChatPanel = ({ conversation, status, onCitation }) => {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex flex-col gap-1 ${msg.role === 'User' ? 'items-end' : 'items-start'}`}
+            className={`flex flex-col gap-1 ${
+              msg.role === 'User' ? 'items-end' : 'items-start'
+            }`}
           >
             <div
               className={`
@@ -136,25 +156,12 @@ const ChatPanel = ({ conversation, status, onCitation }) => {
               <p className='whitespace-pre-wrap'>{msg.content}</p>
             </div>
 
-            {/* Citation badge */}
-            {msg.role === 'Assistant' && msg.sourceRefrence && (
-              <button
-                onClick={() => onCitation(msg.sourceRefrence)}
-                className='flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-accent'
-              >
-                {msg.sourceRefrence.pageNumber ? (
-                  <>
-                    <FileText className='h-3 w-3' />
-                    Page {msg.sourceRefrence.pageNumber}
-                  </>
-                ) : (
-                  <>
-                    <Clock className='h-3 w-3' />
-                    Jump to {formatTime(msg.sourceRefrence.start)} -{' '}
-                    {formatTime(msg.sourceRefrence.end)}
-                  </>
-                )}
-              </button>
+            {/* Citation badge — fixed field name */}
+            {msg.role === 'Assistant' && (
+              <CitationBadge
+                sourceRef={msg.sourceReference} // ← fixed
+                onCitation={onCitation}
+              />
             )}
           </div>
         ))}

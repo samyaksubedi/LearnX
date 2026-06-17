@@ -150,8 +150,13 @@ const deleteConversation = async (userId, conversationId) => {
   if (conversation.userId !== userId) {
     throw new ApiError(403, 'Unauthorized');
   }
-  // Delete uploaded Media related to the conversation from cloudinary
-  await deleteSourceFile(conversation.sourcePublicId, conversation.sourceType);
+  // Delete uploaded Media related to the conversation from B2 bucket except if it's sourceType is not youtube  : )
+  if (!conversation.sourceType == 'youtube') {
+    await deleteSourceFile(
+      conversation.sourcePublicId,
+      conversation.sourceType,
+    );
+  }
 
   // Delete relate qdrant chunks from Qdrant DB
   await deleteQdrantChunks(conversationId);
