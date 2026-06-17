@@ -30,15 +30,13 @@ const ConversationPage = () => {
     }
   }, [polledStatus]);
 
-  // Always create new object so useEffect in MediaViewer fires
-  // even when same message's jump button is clicked twice
   const handleCitation = (sourceRef) => {
     setCitationRef({ ...sourceRef, _t: Date.now() });
   };
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center h-full'>
+      <div className='flex items-center justify-center h-full bg-background'>
         <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
       </div>
     );
@@ -46,7 +44,7 @@ const ConversationPage = () => {
 
   if (!conversation) {
     return (
-      <div className='flex items-center justify-center h-full'>
+      <div className='flex items-center justify-center h-full bg-background'>
         <p className='text-muted-foreground'>Conversation not found</p>
       </div>
     );
@@ -55,9 +53,9 @@ const ConversationPage = () => {
   const currentStatus = polledStatus || conversation.status;
 
   return (
-    <div className='flex h-full overflow-hidden'>
-      {/* Media Viewer — center */}
-      <div className='flex-1 border-r border-border overflow-hidden'>
+    <div className='flex h-full overflow-hidden bg-background'>
+      {/* Media Viewer — takes up remaining space */}
+      <div className='flex-1 overflow-hidden bg-[#0a0a0a]'>
         <MediaViewer
           conversation={conversation}
           status={currentStatus}
@@ -65,8 +63,11 @@ const ConversationPage = () => {
         />
       </div>
 
-      {/* Chat Panel — right */}
-      <div className='w-[420px] shrink-0 flex flex-col overflow-hidden'>
+      {/* Subtle divider — just a shadow, no harsh border */}
+      <div className='w-px bg-gradient-to-b from-transparent via-border to-transparent shrink-0' />
+
+      {/* Chat Panel */}
+      <div className='w-[400px] shrink-0 flex flex-col overflow-hidden bg-background'>
         <ChatPanel
           conversation={conversation}
           status={currentStatus}
