@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -47,13 +46,33 @@ import { useAuthStore } from '@/store/auth.store';
 import NewConversationModal from './NewConversationModal';
 
 const sourceTypeIcon = (type) => {
-  const props = { className: 'h-4 w-4 shrink-0' };
-  if (type === 'youtube') return <Play {...props} />;
-  if (type === 'video') return <FileVideo {...props} />;
-  if (type === 'audio') return <FileAudio {...props} />;
-  if (type === 'pdf') return <FileText {...props} />;
+  if (type === 'youtube')
+    return (
+      <div className='h-6 w-6 rounded-md bg-red-500/15 border border-red-500/20 flex items-center justify-center shrink-0'>
+        <Play className='h-3 w-3 text-red-500' />
+      </div>
+    );
+  if (type === 'video')
+    return (
+      <div className='h-6 w-6 rounded-md bg-blue-500/15 border border-blue-500/20 flex items-center justify-center shrink-0'>
+        <FileVideo className='h-3 w-3 text-blue-500' />
+      </div>
+    );
+  if (type === 'audio')
+    return (
+      <div className='h-6 w-6 rounded-md bg-purple-500/15 border border-purple-500/20 flex items-center justify-center shrink-0'>
+        <FileAudio className='h-3 w-3 text-purple-500' />
+      </div>
+    );
+  if (type === 'pdf')
+    return (
+      <div className='h-6 w-6 rounded-md bg-orange-500/15 border border-orange-500/20 flex items-center justify-center shrink-0'>
+        <FileText className='h-3 w-3 text-orange-500' />
+      </div>
+    );
   return null;
 };
+
 const statusColor = (status) => {
   if (status === 'ready')
     return 'bg-green-500/15 text-green-600 border-green-500/20';
@@ -75,7 +94,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
 
-  // Fetch conversations
   const { data, isLoading } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
@@ -86,7 +104,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
   const conversations = data || [];
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: deleteConversation,
     onSuccess: () => {
@@ -101,7 +118,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
     },
   });
 
-  // Rename mutation
   const renameMutation = useMutation({
     mutationFn: ({ id, title }) => updateConversationTitle(id, title),
     onSuccess: () => {
@@ -114,7 +130,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
     },
   });
 
-  // Logout
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => {
@@ -126,6 +141,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       window.location.href = '/';
     },
   });
+
   const handleRenameStart = (convo) => {
     setEditingId(convo.id);
     setEditTitle(convo.title || 'Untitled');
@@ -138,7 +154,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
   return (
     <>
-      {/* Sidebar */}
       <div
         className={`
           flex flex-col h-full border-r border-border bg-sidebar transition-all duration-300
@@ -196,15 +211,13 @@ const Sidebar = ({ isOpen, onToggle }) => {
                 key={convo.id}
                 className={`
                   group relative flex items-center gap-2 rounded-lg px-2 py-2 cursor-pointer
-                  hover:bg-accent transition-colors
+                  hover:bg-accent transition-colors min-h-[40px]
                   ${conversationId === convo.id ? 'bg-accent' : ''}
                 `}
                 onClick={() => navigate(`/app/conversations/${convo.id}`)}
               >
                 {/* Icon */}
-                <span className='text-muted-foreground shrink-0'>
-                  {sourceTypeIcon(convo.sourceType)}
-                </span>
+                {sourceTypeIcon(convo.sourceType)}
 
                 {isOpen && (
                   <>
@@ -250,18 +263,20 @@ const Sidebar = ({ isOpen, onToggle }) => {
                       )}
                     </div>
 
-                    {/* Status + Actions */}
+                    {/* Status + Actions — fixed width, no layout shift */}
                     {editingId !== convo.id && (
                       <div
                         className='flex items-center gap-1 shrink-0'
                         onClick={(e) => e.stopPropagation()}
                       >
+                        {/* Status badge — hidden on hover, shown normally */}
                         <span
-                          className={`text-xs px-1.5 py-0.5 rounded-full border font-medium ${statusColor(convo.status)}`}
+                          className={`text-xs px-1.5 py-0.5 rounded-full border font-medium group-hover:hidden ${statusColor(convo.status)}`}
                         >
-                          {convo.status}
+                          {convo.status === 'processing' ? '...' : convo.status}
                         </span>
-                        {/* Actions - show on hover */}
+
+                        {/* Actions — hidden normally, shown on hover */}
                         <div className='hidden group-hover:flex items-center gap-0.5'>
                           <Button
                             size='icon'
