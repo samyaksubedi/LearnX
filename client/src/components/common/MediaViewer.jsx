@@ -6,40 +6,81 @@ import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+const formatTime = (seconds) => {
+  if (!seconds && seconds !== 0) return '';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
 const MediaViewer = ({ conversation, status, citationRef }) => {
   const { sourceType, sourceLink } = conversation;
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [iframeKey, setIframeKey] = useState(0); // ← counter to force iframe remount
+  const [iframeKey, setIframeKey] = useState(0);
   const [youtubeStart, setYoutubeStart] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekTarget, setSeekTarget] = useState(null);
 
-  // Handle citation jumps
+  // Pause media when processing
+  useEffect(() => {
+    if (status === 'processing') {
+      if (videoRef.current) videoRef.current.pause();
+      if (audioRef.current) audioRef.current.pause();
+    }
+  }, [status]);
+
+  const seekMedia = (ref, start) => {
+    if (!ref.current) return;
+    const media = ref.current;
+
+    setIsSeeking(true);
+    setSeekTarget(start);
+
+    const doSeek = () => {
+      media.currentTime = start;
+      const onSeeked = () => {
+        media.play().catch(() => {});
+        setIsSeeking(false);
+        setSeekTarget(null);
+        media.removeEventListener('seeked', onSeeked);
+      };
+      media.addEventListener('seeked', onSeeked);
+    };
+
+    if (media.readyState >= 2) {
+      doSeek();
+    } else {
+      const handler = () => {
+        doSeek();
+        media.removeEventListener('loadedmetadata', handler);
+      };
+      media.addEventListener('loadedmetadata', handler);
+    }
+  };
+
+  // citationRef is wrapped with a counter in ConversationPage
+  // so this always fires even for same start/end values
   useEffect(() => {
     if (!citationRef) return;
 
     if (sourceType === 'pdf' && citationRef.pageNumber) {
       setPageNumber(citationRef.pageNumber);
     }
-
-    if (sourceType === 'video' && videoRef.current) {
-      videoRef.current.currentTime = citationRef.start;
-      videoRef.current.play();
+    if (sourceType === 'video') {
+      seekMedia(videoRef, citationRef.start);
     }
-
-    if (sourceType === 'audio' && audioRef.current) {
-      audioRef.current.currentTime = citationRef.start;
-      audioRef.current.play();
+    if (sourceType === 'audio') {
+      seekMedia(audioRef, citationRef.start);
     }
-
     if (sourceType === 'youtube') {
-      setYoutubeStart(Math.floor(citationRef.start)); // ← update start
-      setIframeKey((k) => k + 1); // ← force remount every time
+      setYoutubeStart(Math.floor(citationRef.start));
+      setIframeKey((k) => k + 1);
     }
   }, [citationRef]);
 
-  // Extract YouTube video ID
   const getYoutubeId = (url) => {
     const match = url?.match(
       /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([^&?\s]+)/,
@@ -76,11 +117,11 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
         </div>
       )}
 
-      {/* YouTube */}
+      {/* YouTube — always render but only autoplay when ready */}
       {sourceType === 'youtube' && youtubeId && (
         <iframe
           key={iframeKey}
-          src={`https://www.youtube.com/embed/${youtubeId}?start=${youtubeStart}&autoplay=${iframeKey > 0 ? 1 : 0}`}
+          src={`https://www.youtube.com/embed/${youtubeId}?start=${youtubeStart}&autoplay=${iframeKey > 0 && status === 'ready' ? 1 : 0}`}
           className='w-full h-full'
           allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
           allowFullScreen
@@ -89,12 +130,23 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
 
       {/* Video */}
       {sourceType === 'video' && (
-        <video
-          ref={videoRef}
-          src={sourceLink}
-          controls
-          className='w-full h-full object-contain'
-        />
+        <div className='relative w-full h-full'>
+          <video
+            ref={videoRef}
+            src={sourceLink}
+            controls
+            className='w-full h-full object-contain'
+            preload='metadata'
+          />
+          {isSeeking && (
+            <div className='absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 pointer-events-none'>
+              <Loader2 className='h-8 w-8 animate-spin text-white' />
+              <p className='text-white text-sm font-medium'>
+                Seeking to {formatTime(seekTarget)}...
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Audio */}
@@ -106,11 +158,18 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
           <p className='font-medium text-foreground text-center'>
             {conversation.title}
           </p>
+          {isSeeking && (
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Loader2 className='h-4 w-4 animate-spin' />
+              Seeking to {formatTime(seekTarget)}...
+            </div>
+          )}
           <audio
             ref={audioRef}
             src={sourceLink}
             controls
             className='w-full max-w-md'
+            preload='metadata'
           />
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -13,17 +13,14 @@ const ConversationPage = () => {
   const { conversationId } = useParams();
   const queryClient = useQueryClient();
   const [citationRef, setCitationRef] = useState(null);
-  // citationRef: { start, end } for media OR { pageNumber } for PDF OR null
 
   const { data: conversation, isLoading } = useConversation(conversationId);
 
-  // Poll status while processing
   const { data: polledStatus } = useConversationStatus(
     conversationId,
     conversation?.status,
   );
 
-  // When status changes to ready → refresh conversation
   useEffect(() => {
     if (polledStatus === 'ready' && conversation?.status === 'processing') {
       queryClient.invalidateQueries({
@@ -32,6 +29,12 @@ const ConversationPage = () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     }
   }, [polledStatus]);
+
+  // Always create new object so useEffect in MediaViewer fires
+  // even when same message's jump button is clicked twice
+  const handleCitation = (sourceRef) => {
+    setCitationRef({ ...sourceRef, _t: Date.now() });
+  };
 
   if (isLoading) {
     return (
@@ -67,7 +70,7 @@ const ConversationPage = () => {
         <ChatPanel
           conversation={conversation}
           status={currentStatus}
-          onCitation={setCitationRef}
+          onCitation={handleCitation}
         />
       </div>
     </div>
