@@ -1,5 +1,5 @@
-import { redisClient } from '../Configs/redis.config.js';
-import { logger } from '../Configs/logger.config.js';
+import { redisClient } from '../configs/redis.config.js';
+import { logger } from '../configs/logger.config.js';
 import { ApiError } from '../utils/api-output.util.js';
 
 const GLOBAL_LIMIT = 300; // max requests per day across all users
