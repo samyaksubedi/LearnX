@@ -1,4 +1,4 @@
-import { envVariables } from '../../Configs/env.config.js';
+import { envVariables } from '../../configs/env.config.js';
 import { ApiError, ApiResponse } from '../../utils/api-output.util.js';
 import { webHookServices } from './webhooks.service.js';
 
