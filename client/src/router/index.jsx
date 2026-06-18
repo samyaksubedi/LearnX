@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
+import ProtectedRoute from './protectedRoute';
+import PublicRoute from './publicRoute';
 
 // Pages — we'll create these next
 import LandingPage from '@/pages/Landing/LandingPage';
