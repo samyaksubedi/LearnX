@@ -11,7 +11,7 @@ import { envVariables } from './configs/env.config.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
-
+app.set('trust proxy', 1); // To get real ip
 app.use(
   cors({
     origin: envVariables.CLIENT_URL,

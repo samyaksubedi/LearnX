@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { envVariables } from './configs/env.config.js';
 import { app } from './app.js';
 import { logger } from './configs/logger.config.js';

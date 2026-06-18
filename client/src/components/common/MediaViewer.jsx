@@ -25,12 +25,10 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
   const [seekTarget, setSeekTarget] = useState(null);
   const [mediaError, setMediaError] = useState(false);
 
-  // Reset error when sourceLink changes
   useEffect(() => {
     setMediaError(false);
   }, [sourceLink]);
 
-  // Pause media when processing
   useEffect(() => {
     if (status === 'processing') {
       if (videoRef.current) videoRef.current.pause();
@@ -90,16 +88,16 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
   const youtubeId = sourceType === 'youtube' ? getYoutubeId(sourceLink) : null;
 
   return (
-    <div className='relative flex flex-col h-full bg-[#0a0a0a]'>
+    <div className='relative flex flex-col h-full bg-background'>
       {/* Processing Overlay */}
       {status === 'processing' && (
-        <div className='absolute inset-0 bg-black/70 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4'>
-          <div className='h-16 w-16 rounded-full border border-white/10 bg-white/5 flex items-center justify-center'>
-            <Loader2 className='h-7 w-7 animate-spin text-white/70' />
+        <div className='absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4'>
+          <div className='h-16 w-16 rounded-full border border-border bg-muted flex items-center justify-center'>
+            <Loader2 className='h-7 w-7 animate-spin text-muted-foreground' />
           </div>
           <div className='text-center space-y-1'>
-            <p className='font-medium text-white'>Processing your media</p>
-            <p className='text-sm text-white/40'>
+            <p className='font-medium text-foreground'>Processing your media</p>
+            <p className='text-sm text-muted-foreground'>
               This may take a few minutes...
             </p>
           </div>
@@ -108,13 +106,13 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
 
       {/* Failed Overlay */}
       {status === 'failed' && (
-        <div className='absolute inset-0 bg-black/70 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4'>
+        <div className='absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4'>
           <div className='h-16 w-16 rounded-full border border-red-500/20 bg-red-500/10 flex items-center justify-center'>
             <AlertCircle className='h-7 w-7 text-red-400' />
           </div>
           <div className='text-center space-y-1'>
-            <p className='font-medium text-white'>Processing failed</p>
-            <p className='text-sm text-white/40 max-w-xs text-center'>
+            <p className='font-medium text-foreground'>Processing failed</p>
+            <p className='text-sm text-muted-foreground max-w-xs text-center'>
               {conversation.errorMessage || 'Something went wrong'}
             </p>
           </div>
@@ -140,7 +138,9 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
               <div className='h-16 w-16 rounded-full border border-red-500/20 bg-red-500/10 flex items-center justify-center'>
                 <AlertCircle className='h-7 w-7 text-red-400' />
               </div>
-              <p className='text-white/60 text-sm'>Failed to load video</p>
+              <p className='text-muted-foreground text-sm'>
+                Failed to load video
+              </p>
             </div>
           ) : (
             <video
@@ -152,10 +152,11 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
               onError={() => setMediaError(true)}
             />
           )}
+
           {isSeeking && !mediaError && (
-            <div className='absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-3 pointer-events-none'>
-              <Loader2 className='h-8 w-8 animate-spin text-white' />
-              <p className='text-white/80 text-sm font-medium'>
+            <div className='absolute inset-0 bg-background/80 flex flex-col items-center justify-center gap-3 pointer-events-none'>
+              <Loader2 className='h-8 w-8 animate-spin text-foreground' />
+              <p className='text-foreground text-sm font-medium'>
                 Jumping to {formatTime(seekTarget)}...
               </p>
             </div>
@@ -166,24 +167,24 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
       {/* Audio */}
       {sourceType === 'audio' && (
         <div className='flex flex-col items-center justify-center h-full gap-8 p-8'>
-          <div className='absolute inset-0 bg-gradient-radial from-purple-500/5 via-transparent to-transparent pointer-events-none' />
+          <div className='absolute inset-0 bg-background/40 pointer-events-none' />
 
           <div className='relative'>
-            <div className='absolute inset-0 bg-purple-500/20 blur-2xl rounded-full scale-150' />
-            <div className='relative h-28 w-28 rounded-full bg-white/5 border border-white/10 flex items-center justify-center'>
-              <FileAudio className='h-12 w-12 text-white/40' />
+            <div className='absolute inset-0 bg-muted blur-2xl rounded-full scale-150' />
+            <div className='relative h-28 w-28 rounded-full bg-background border border-border flex items-center justify-center'>
+              <FileAudio className='h-12 w-12 text-muted-foreground' />
             </div>
           </div>
 
           <div className='text-center space-y-1 max-w-sm'>
-            <p className='font-semibold text-white text-lg leading-snug'>
+            <p className='font-semibold text-foreground text-lg leading-snug'>
               {conversation.title}
             </p>
-            <p className='text-sm text-white/30'>Audio</p>
+            <p className='text-sm text-muted-foreground'>Audio</p>
           </div>
 
           {isSeeking && (
-            <div className='flex items-center gap-2 text-sm text-white/50'>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
               <Loader2 className='h-4 w-4 animate-spin' />
               Jumping to {formatTime(seekTarget)}...
             </div>
@@ -194,7 +195,9 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
               <div className='h-16 w-16 rounded-full border border-red-500/20 bg-red-500/10 flex items-center justify-center'>
                 <AlertCircle className='h-7 w-7 text-red-400' />
               </div>
-              <p className='text-white/60 text-sm'>Failed to load audio</p>
+              <p className='text-muted-foreground text-sm'>
+                Failed to load audio
+              </p>
             </div>
           ) : (
             <audio
@@ -213,47 +216,41 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
       {/* PDF */}
       {sourceType === 'pdf' && (
         <div className='flex flex-col h-full'>
-          {/* PDF Toolbar */}
-          <div className='flex items-center justify-between px-6 py-3 shrink-0 bg-[#111111] border-b border-white/5'>
+          {/* Toolbar */}
+          <div className='flex items-center justify-between px-6 py-3 shrink-0 bg-muted border-b border-border'>
             <button
               onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
               disabled={pageNumber <= 1}
-              className='text-sm px-4 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
+              className='text-sm px-4 py-1.5 rounded-lg bg-background hover:bg-accent text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
             >
               ← Prev
             </button>
-            <span className='text-sm text-white/40 font-medium'>
+
+            <span className='text-sm text-muted-foreground font-medium'>
               {pageNumber} / {numPages || '—'}
             </span>
+
             <button
               onClick={() =>
                 setPageNumber((p) => Math.min(numPages || p, p + 1))
               }
               disabled={pageNumber >= (numPages || 1)}
-              className='text-sm px-4 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
+              className='text-sm px-4 py-1.5 rounded-lg bg-background hover:bg-accent text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors'
             >
               Next →
             </button>
           </div>
 
-          {/* PDF Content */}
-          <div className='flex-1 overflow-auto flex justify-center p-6 bg-[#0a0a0a]'>
-            <div className='shadow-2xl shadow-black/50'>
+          {/* Content */}
+          <div className='flex-1 overflow-auto flex justify-center p-6 bg-background'>
+            <div className='shadow-2xl shadow-black/10'>
               <Document
                 file={sourceLink}
                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                 onLoadError={(error) => console.error('PDF load error:', error)}
-                error={
-                  <div className='flex flex-col items-center justify-center py-20 gap-3'>
-                    <div className='h-16 w-16 rounded-full border border-red-500/20 bg-red-500/10 flex items-center justify-center'>
-                      <AlertCircle className='h-7 w-7 text-red-400' />
-                    </div>
-                    <p className='text-white/60 text-sm'>Failed to load PDF</p>
-                  </div>
-                }
                 loading={
                   <div className='flex items-center justify-center py-20'>
-                    <Loader2 className='h-8 w-8 animate-spin text-white/30' />
+                    <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
                   </div>
                 }
               >
@@ -262,14 +259,6 @@ const MediaViewer = ({ conversation, status, citationRef }) => {
                   width={Math.min(window.innerWidth * 0.45, 680)}
                   renderTextLayer={true}
                   renderAnnotationLayer={true}
-                  error={
-                    <div className='flex flex-col items-center justify-center py-20 gap-3'>
-                      <AlertCircle className='h-7 w-7 text-red-400' />
-                      <p className='text-white/60 text-sm'>
-                        Failed to load page {pageNumber}
-                      </p>
-                    </div>
-                  }
                 />
               </Document>
             </div>
