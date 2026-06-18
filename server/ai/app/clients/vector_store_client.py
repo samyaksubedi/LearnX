@@ -1,7 +1,7 @@
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
-from qdrant_client.models import VectorParams, Distance
+from qdrant_client.models import VectorParams, Distance, PayloadSchemaType
 from app.config import settings
 
 COLLECTION_NAME = "learnx_chunks"
@@ -18,7 +18,7 @@ def get_vector_store():
     if _vector_store is None:
         _client = QdrantClient(
             url=settings.get_qdrant_url, api_key=settings.QDRANT_API_KEY
-        )  #
+        )
 
         _embeddings = OpenAIEmbeddings(
             api_key=settings.OPENAI_API_KEY, model="text-embedding-3-large"
@@ -28,6 +28,19 @@ def get_vector_store():
             _client.create_collection(
                 collection_name=COLLECTION_NAME,
                 vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
+            )
+
+            # ✅ ADDED FIX: payload indexes (required for filtering)
+            _client.create_payload_index(
+                collection_name=COLLECTION_NAME,
+                field_name="metadata.conversation_id",
+                field_schema=PayloadSchemaType.KEYWORD,
+            )
+
+            _client.create_payload_index(
+                collection_name=COLLECTION_NAME,
+                field_name="metadata.user_id",
+                field_schema=PayloadSchemaType.KEYWORD,
             )
 
         _vector_store = QdrantVectorStore(
