@@ -1,11 +1,15 @@
 import { prisma } from '../../db/client.db.js';
 import { ApiError } from '../../utils/api-output.util.js';
-import { validateYoutubeUrl } from './conversations.youtube.js';
+// import { validateYoutubeUrl } from './conversations.youtube.js';
 import { deleteSourceFile, uploadSourceFile } from './conversations.upload.js';
 import { logger } from '../../configs/logger.config.js';
 import { enqueueConversationJob } from '../../services/queue.service.js';
 import { getUsersConversationHistory } from './conversations.history.js';
-import { deleteQdrantChunks, getAIAnswer } from './conversations.ai.js';
+import {
+  deleteQdrantChunks,
+  getAIAnswer,
+  validateYoutubeUrl,
+} from './conversations.ai.js';
 
 const createConversationFromYoutube = async (userId, sourceLink) => {
   // Validate the url

@@ -39,4 +39,39 @@ const deleteQdrantChunks = async (conversationId) => {
 
   return response.json();
 };
-export { getAIAnswer, deleteQdrantChunks };
+
+const validateYoutubeUrl = async (sourceLink) => {
+  try {
+    const response = await fetch(
+      `${envVariables.AI_URL}/api/internal/chat/youtube-metadata`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          youtube_url: sourceLink,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Invalid YouTube URL');
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    return {
+      isValid: true,
+      title: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      isValid: false,
+      errorMessage: 'Invalid, private, or unavailable YouTube video',
+    };
+  }
+};
+export { getAIAnswer, deleteQdrantChunks, validateYoutubeUrl };

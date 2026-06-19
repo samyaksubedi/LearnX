@@ -24,3 +24,7 @@ class ChatResponse(BaseModel):
 
 class ChatDeleteRequest(BaseModel):
     conversation_id: str = Field(...)
+
+
+class YoutubeMetaDataRequest(BaseModel):
+    youtube_url: str = Field(...)

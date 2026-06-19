@@ -298,3 +298,5 @@ server/ai/tmp/*
 !server/shared/uploads/.gitkeep
 !server/ai/tmp/.gitkeep
 
+# Cookies
+youtube_cookies.txt
