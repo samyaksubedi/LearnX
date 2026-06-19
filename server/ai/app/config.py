@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     WHISPER_MODE: str = "local"
     WHISPER_DEVICE: str = "cpu"
 
+    # Youtube Cookie file
+    YOUTUBE_COOKIE_FILE: Optional[str] = None
+
     @property
     def get_redis_url(self) -> str:
         if self.REDIS_URL:

@@ -1,8 +1,10 @@
 import yt_dlp
 from app.services.ingestion.exceptions import IngestionError
+from app.config import settings
 
 
 #   check if youtube url is valid
+YOUTUBE_COOKIE_FILE = settings.YOUTUBE_COOKIE_FILE
 
 
 def validate_youtube_url(source_link: str) -> str:
@@ -12,7 +14,12 @@ def validate_youtube_url(source_link: str) -> str:
         "no_warnings": True,
         "noplaylist": True,
         "socket_timeout": 10,
+        # In production only :- cookiefile | no cookiefile in develpopment
+        # "cookiefile": "/opt/apps/LearnX/youtube_cookies.txt",
     }
+    if YOUTUBE_COOKIE_FILE:
+        ydl_opts["cookiefile"] = YOUTUBE_COOKIE_FILE
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(source_link, download=False)
@@ -32,6 +39,7 @@ def validate_youtube_url(source_link: str) -> str:
 
 #  must need to download ffmpeg locally : "winget install ffmpeg" - on windows
 def download_audio(youtube_url: str, output_dir: str) -> str:
+
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": f"{output_dir}/%(id)s.%(ext)s",
@@ -39,15 +47,22 @@ def download_audio(youtube_url: str, output_dir: str) -> str:
         "no_warnings": True,
         "noplaylist": True,
         "socket_timeout": 10,
+        # In development :
+        # No "cookiefile"
+        #
+        # In production :
+        # "cookiefile": "/opt/apps/LearnX/youtube_cookies.txt",
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
-                # "preferredquality": "192",
                 "preferredquality": "64",
             }
         ],
     }
+    if YOUTUBE_COOKIE_FILE:
+        ydl_opts["cookiefile"] = YOUTUBE_COOKIE_FILE
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=True)
