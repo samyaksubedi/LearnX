@@ -200,6 +200,7 @@ const LandingPage = () => {
             >
               Sign in
             </Link>
+
             <Link to='/sign-up'>
               <Button
                 size='sm'
@@ -207,6 +208,12 @@ const LandingPage = () => {
               >
                 Get started free
               </Button>
+            </Link>
+            <Link
+              to='/sign-in?demo=1'
+              className='inline-flex items-center px-6 py-2.5 rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 transition-colors text-sm font-medium'
+            >
+              Try Demo
             </Link>
           </div>
         </div>

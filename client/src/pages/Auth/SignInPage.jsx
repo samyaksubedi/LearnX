@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { useAuthStore } from '@/store/auth.store';
 const SignInPage = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const [searchParams] = useSearchParams();
+
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
 
@@ -17,18 +19,35 @@ const SignInPage = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // 🚀 DEMO MODE AUTO FILL
+  useEffect(() => {
+    const isDemo = searchParams.get('demo');
+
+    if (isDemo === '1') {
+      setForm({
+        email: 'test@samyaklabs.com',
+        password: 'test@123',
+      });
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.email || !form.password) {
       toast.error('Please fill in all fields');
       return;
     }
+
     setIsLoading(true);
+
     try {
       const response = await signIn(form);
       const { accessToken, user } = response.data;
+
       setAuth(accessToken, user);
       toast.success(`Welcome back, ${user.name}!`);
+
       navigate('/app');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Something went wrong');
