@@ -5,6 +5,12 @@ from app.config import settings
 
 #   check if youtube url is valid
 YOUTUBE_COOKIE_FILE = settings.YOUTUBE_COOKIE_FILE
+YOUTUBE_EXTRACTOR_ARGS = {
+    "youtube": {
+        # this is the key fix for VPS bot detection
+        "player_client": ["android", "web"],
+    }
+}
 
 
 def validate_youtube_url(source_link: str) -> str:
@@ -14,9 +20,9 @@ def validate_youtube_url(source_link: str) -> str:
         "no_warnings": True,
         "noplaylist": True,
         "socket_timeout": 10,
-        # In production only :- cookiefile | no cookiefile in develpopment
-        # "cookiefile": "/opt/apps/LearnX/youtube_cookies.txt",
+        "extractor_args": YOUTUBE_EXTRACTOR_ARGS,  # 🔥 ADD THIS
     }
+
     if YOUTUBE_COOKIE_FILE:
         ydl_opts["cookiefile"] = YOUTUBE_COOKIE_FILE
 
@@ -47,11 +53,7 @@ def download_audio(youtube_url: str, output_dir: str) -> str:
         "no_warnings": True,
         "noplaylist": True,
         "socket_timeout": 10,
-        # In development :
-        # No "cookiefile"
-        #
-        # In production :
-        # "cookiefile": "/opt/apps/LearnX/youtube_cookies.txt",
+        "extractor_args": YOUTUBE_EXTRACTOR_ARGS,  # 🔥 ADD THIS
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -60,6 +62,7 @@ def download_audio(youtube_url: str, output_dir: str) -> str:
             }
         ],
     }
+
     if YOUTUBE_COOKIE_FILE:
         ydl_opts["cookiefile"] = YOUTUBE_COOKIE_FILE
 
