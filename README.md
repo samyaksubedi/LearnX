@@ -15,7 +15,7 @@ It's just an RAG based chat app , which let's you have a conversation with any t
 
 ## Interesting Feature
 - When Chatting with a youtube video or nay type of media source which is supported   , you  won't just get a simple answer from the content , it will point and fast forward to the exact part / page number from where AI made the answer . 
-[▶ Watch Live Example](./README_ASSETS/youtube_demo.mp4)
+[▶ Watch Live Example](https://www.youtube.com/watch?v=LM_cBrkStmE)
 - As we know , For processing a media (Video , Audio , Youtube , PDF) backend takes time so we can't just process all thing at once or in a single API call , because response time will be more that 1 min in such cases . It's bad system design , So When user creates conversation it just don't start processing at the spot rather it creates a row in Conversation Table and put the status as processing and fastly return back the response with conversation details , and push the conversation Job to the Redis Queue so it can process it in background .  
 - I implemented a custom redis queue using **blpop** , As there was no any library which helped me connect Node Application with Pytho Application . So , i used lpush to push job to the queue on node side and on python side i have used blpop to continuously listen to the queue for job . 
 - In my old project i suffered from a problem when using AccessToken and RefreshToken for user authentication as If i loggedIn the same account from anothe device the backend generates a new RefreshToken so my other device get's logged out , That wasn't good , SO in this project i have handled multi device sessions by storing user session on a seperate database table :  i.e **user_session**
